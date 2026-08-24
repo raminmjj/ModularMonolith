@@ -127,6 +127,7 @@ public sealed class Product : AggregateRoot<Guid>
         if (!IsActive) return;
         IsActive = false;
         UpdatedAt = DateTimeOffset.UtcNow;
+        Raise(new ProductDeactivatedDomainEvent(Id));
     }
 }
 

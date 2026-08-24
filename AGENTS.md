@@ -11,7 +11,7 @@
 ```
 BuildingBlocks/
 ├── Framework/              ← Result, Error, CrossModuleSaga (saga toolkit, ADR-0005)
-├── DDD/                    ← Entity, ValueObject, AggregateRoot
+├── DDD/                    ← Entity, ValueObject, AggregateRoot, IEventDispatcher + NoOp (ADR-0004)
 ├── SharedKernel/           ← Money, Email (shared domain concepts)
 ├── Contracts/              ← Cross-module DTOs (NOT events)
 └── Infrastructure.Persistence/ ← EF Core base (Repository, UnitOfWork)

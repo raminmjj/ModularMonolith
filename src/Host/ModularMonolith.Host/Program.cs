@@ -155,6 +155,13 @@ builder.Services.AddOpenTelemetry()
         .AddAspNetCoreInstrumentation()
         .AddMeter("ModularMonolith.Sagas"));
 
+// ---- Pluggable event dispatching (ADR-0004, currently NoOp) ----
+// Application services await IEventDispatcher; today nothing is delivered.
+// To go async later: register a different IEventDispatcher here — the core
+// does not change. NO bus packages; see ADR-0004 for future triggers.
+builder.Services.AddSingleton<ModularMonolith.DDD.Events.IEventDispatcher>(
+    ModularMonolith.DDD.Events.NoOpEventDispatcher.Instance);
+
 var app = builder.Build();
 
 // ---- Explicit schema management: `dotnet ModularMonolith.Host.dll --migrate` ----

@@ -1,7 +1,9 @@
-# ADR-0004: Domain Events — No Dispatching Infrastructure in v3
+# ADR-0004: Pluggable Event Dispatching (Currently NoOp)
 
 ## Status
-Accepted — 2026-08-08
+Accepted - 2026-08-08 | **Amended (2026-08-24): pluggable seam introduced, NoOp chosen.**
+The zero-dispatch decision below is superseded by the seam described at the bottom;
+the reasoning (strong consistency, no bus) is reaffirmed and extended.
 
 ## Context
 v2 had a full Domain Event dispatch pipeline (`IDomainEventDispatcher`, `DomainEventDispatchRunner<TDbContext>`) that forwarded events to Wolverine's message bus after commit. This added complexity:
@@ -53,3 +55,53 @@ If event dispatching becomes necessary:
 ## References
 - ADR-0002: Transactional Inter-Module Communication
 - v2 ADR-0005: Domain Event Dispatch Pipeline (superseded by this ADR)
+
+---
+
+## Amendment (2026-08-24): Pluggable Event Dispatching — NoOp Today
+
+The original decision left `ClearDomainEvents()` with zero callers and dispatch as a
+non-existent concept. That created a dead seam: when async workflows eventually arrive,
+every aggregate would need re-touching. This amendment installs the *abstraction*
+without installing any delivery mechanism.
+
+### What was added
+- `ModularMonolith.DDD.Events.IEventDispatcher` — the seam. Application services may
+  now `await` dispatch; the core has no idea what happens behind it.
+- `NoOpEventDispatcher` — the current implementation: completes, delivers nothing,
+  zero dependencies. Registered in the Host as singleton; swapping implementations is
+  ONE DI line.
+- `DispatchAndClearAsync(entity)` extension — publishes everything an aggregate
+  raised, then clears its buffer (`ClearDomainEvents()` finally has a caller).
+- First wired call sites: `CatalogAdminService.DeactivateProductAsync`
+  (`ProductDeactivatedDomainEvent`, newly raised by the aggregate) and
+  `PaymentAdminService.RefundAsync` (`PaymentRefundedDomainEvent`).
+
+### Why we explicitly choose NoOp today
+1. **Strong consistency stays default.** Nothing happens after commit that a caller
+   did not already see. No dual-write windows, no retry semantics to reason about.
+2. **In-process handlers would be premature coupling.** The only plausible consumers
+   today would be cross-module reactions — and those MUST go through ACL ports
+   (ADR-0002), not events.
+3. **A real bus is a one-line DI swap away.** The seam makes waiting cheap.
+
+### Future triggers — replace NoOp when:
+| Trigger | Example | Replacement shape |
+|---|---|---|
+| Background side effects after commit | email/notification on refund | In-memory background dispatcher (fire-and-forget, same process) |
+| Cross-module reactions that must not share the request transaction | analytics roll-ups, read-model warm-up | Outbox + transport (NEW ADR required — revisits ADR-0002) |
+| Integration with external systems | PSP webhooks, CRM sync | Same outbox path |
+| Event-sourced read models (ADR-0008 Stage 2+) | denormalized reporting store | Projection pump consuming the dispatcher |
+
+### Rules that do NOT change
+- Domain events remain **intra-module**. Cross-module communication is still ACL ports
+  + Contracts (ADR-0002) — never events.
+- Aggregates still own their events; services never invent events for state they did
+  not load.
+- No bus packages (Wolverine/MassTransit/RabbitMQ) — arch-tested.
+
+## References
+- ADR-0002: Transactional Inter-Module Communication
+- ADR-0005: CrossModuleSaga (compensation, not events)
+- ADR-0008: Read-Optimized CQS terminology
+- v2 ADR-0005: Domain Event Dispatch Pipeline (superseded)

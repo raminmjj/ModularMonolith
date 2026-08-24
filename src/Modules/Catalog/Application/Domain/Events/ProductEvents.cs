@@ -7,3 +7,4 @@ public sealed record ProductPriceChangedDomainEvent(Guid ProductId, decimal NewP
 public sealed record ProductStockAdjustedDomainEvent(Guid ProductId, int NewStock) : DomainEvent;
 public sealed record ProductReservedDomainEvent(Guid ProductId, int Quantity, Guid ReservationId) : DomainEvent;
 public sealed record ProductReservationReleasedDomainEvent(Guid ProductId, int Quantity, Guid ReservationId) : DomainEvent;
+public sealed record ProductDeactivatedDomainEvent(Guid ProductId) : DomainEvent;
