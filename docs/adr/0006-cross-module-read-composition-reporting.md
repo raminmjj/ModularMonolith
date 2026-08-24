@@ -74,3 +74,38 @@ mirror of the write-side ACL gateway pattern (ADR-0002/0005).
   summing misleadingly — callers must filter by currency first (future: FX normalization).
 - ⚠️ Paging happens post-composition (in-memory) — acceptable for date-bounded admin
   ranges; revisit with keyset pagination if groups grow past ~10⁴.
+---
+
+## Amendment: Third Provider (Orders) + N+1 Reaffirmation
+
+**Requirement:** the report must include each customer's **last order** (`customer.lastOrder`).
+
+### Decision #1 — extend Exception #3 to `Orders.QueryApplication` (Option A)
+The composition context exists precisely to absorb multi-module coupling; each new
+provider costs one port + one delegating adapter + one arch-test list entry, and ZERO
+changes to provider domains. Option B (Customer facade over orders) was rejected as
+domain leakage that merely relocates the same coupling into a context whose language
+has no orders; Option C (denormalized LastOrderId on Customer) was rejected for
+distorting an aggregate with a reporting concern and adding saga steps.
+
+New provider method: `IOrderQueryService.GetLastOrdersByCustomerAsync(userIds)` —
+single SQL projection, latest-per-customer resolved on the read side.
+**Identity translation:** Orders keys ownership by `IdentityUserId`; Reporting maps
+`Customer.Id → IdentityUserId → order → back to customer node` in memory.
+
+### Decision #2 — extend Service composition (Option X); NO DataLoader
+The invariant generalizes: *GraphQL resolvers perform zero IO; every nested field
+resolves from the composed page.* SQL statements per report request remain CONSTANT:
+
+| Step | Provider | SQL |
+|---|---|---|
+| 1 | Payment read side | 1 filtered query |
+| 2–4 | (in-memory group/join/page) | 0 |
+| 5 | Customer read side | 1 batched IN-query |
+| 6 | Orders read side | 1 batched projection |
+
+→ **3 SQL per request at any scale** (1000 customers ⇒ same 3 queries; page size caps
+enrichment at ≤100 ids). Machine-checked by `FailureReportCompositionTests`
+(NSubstitute call-count assertions: exactly ONE call per port even at 50 customers;
+cache hit ⇒ zero calls). DataLoaders would add request-scoped machinery without a
+measured need — trigger to revisit: many optional expensive nested branches.

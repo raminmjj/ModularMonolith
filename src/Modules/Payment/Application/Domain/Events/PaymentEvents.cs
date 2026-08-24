@@ -6,3 +6,4 @@ namespace ModularMonolith.Modules.Payment.Application.Domain.Events;
 public sealed record PaymentInitiatedDomainEvent(Guid PaymentId, Guid CustomerId, decimal Amount, string Currency) : DomainEvent;
 public sealed record PaymentCapturedDomainEvent(Guid PaymentId) : DomainEvent;
 public sealed record PaymentFailedDomainEvent(Guid PaymentId, string Reason) : DomainEvent;
+public sealed record PaymentRefundedDomainEvent(Guid PaymentId) : DomainEvent;

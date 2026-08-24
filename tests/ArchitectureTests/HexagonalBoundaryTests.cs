@@ -268,15 +268,16 @@ public class ReportingBoundaryTests
         typeof(ModularMonolith.Modules.Reporting.Adapter.Inbound.GraphQL.DependencyInjection).Assembly;
 
     /// <summary>
-    /// THE read-only guarantee for the composition context: NO Reporting assembly may
-    /// reference ANY write-side Application. Composition touches provider QueryApplications
-    /// only (via Reporting's own outbound ports). Violations = report could mutate data.
+    /// ADR-0007 amendment: Reporting drives admin MUTATIONS, so the boundary moves
+    /// inward. Reporting.Application + GraphQL adapter must NEVER reference write-side
+    /// Applications; only the outbound gateway adapter may (delegating to provider
+    /// inbound ports — same ACL pattern as exceptions #1/#2).
     /// </summary>
     [Fact]
-    public void Reporting_Must_Never_Reference_Write_Side_Applications()
+    public void Reporting_App_And_GraphQL_Must_Never_Reference_Write_Side_Applications()
     {
         var forbidden = ModuleNames.Select(m => $"ModularMonolith.Modules.{m}.Application").ToArray();
-        foreach (var asm in new[] { ReportingApp, ReportingOutbound, ReportingGraphQL })
+        foreach (var asm in new[] { ReportingApp, ReportingGraphQL })
         {
             var result = Types.InAssembly(asm)
                 .ShouldNot().HaveDependencyOnAny(forbidden)
@@ -288,12 +289,13 @@ public class ReportingBoundaryTests
 
     /// <summary>Only the outbound ACL adapter may see provider read sides — GraphQL and app layer stay blind.</summary>
     [Fact]
-    public void Only_Reporting_Adapter_Outbound_May_Reference_Provider_Read_Sides()
+    public void Only_Reporting_Adapter_Outbound_May_Reference_Read_Sides()
     {
         var providerReadSides = new[]
         {
             "ModularMonolith.Modules.Customer.QueryApplication",
             "ModularMonolith.Modules.Payment.QueryApplication",
+            "ModularMonolith.Modules.Orders.QueryApplication", // ADR-0006 amendment: last-order enrichment
         };
 
         foreach (var asm in new[] { ReportingApp, ReportingGraphQL })

@@ -7,18 +7,17 @@ using ModularMonolith.Modules.Reporting.Application.Ports.Inbound;
 namespace ModularMonolith.Modules.Reporting.Adapter.Inbound.GraphQL;
 
 /// <summary>
-/// GraphQL query root for the admin panel. Driving adapter only: resolves the
-/// inbound port, maps Result → GraphQL errors. All data comes from
-/// IFailureReportService (which composes provider READ sides via ports) —
-/// no DbContext, no aggregates, no write-side access.
+/// Failed-payments report (ADR-0006). Composes Customer/Payment/Orders READ sides
+/// through IFailureReportService — resolvers stay IO-free shells.
 /// </summary>
-[Authorize(Policy = "Admin")]
-public sealed class AdminReportQuery
+[ExtendObjectType("Query")]
+public sealed class AdminReportQueries
 {
     /// <summary>
-    /// Customers with at least one failed payment, their failed payments and totals.
-    /// Filters: date range (on FailedAt), minimum amount, customer status. Paged.
+    /// Customers with at least one failed payment, their failed payments, totals
+    /// and last order. Filters: date range (on FailedAt), minimum amount, customer status.
     /// </summary>
+    [Authorize(Policy = "Admin")]
     public async Task<FailureReportPage> CustomersWithFailedPayments(
         FailureReportFilterInput filter,
         [Service] IFailureReportService reportService,

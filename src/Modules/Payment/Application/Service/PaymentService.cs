@@ -117,6 +117,15 @@ public sealed class PaymentService : Ports.Inbound.IPaymentService
         return Result.Success(transaction!.Id);
     }
 
+    public async Task<Result> RefundAsync(Guid paymentId, CancellationToken ct = default)
+    {
+        var tx = await _transactions.GetByIdAsync(paymentId, ct);
+        if (tx is null) return Result.Failure(new Error("PAYMENT_NOT_FOUND", "Payment was not found."));
+        try { tx.MarkRefunded(); }
+        catch (DomainException dex) { return Result.Failure(new Error(dex.Code, dex.Message)); }
+        await _unitOfWork.SaveChangesAsync(ct);
+        return Result.Success();
+    }
     public async Task<Result> CaptureAsync(Guid paymentId, CancellationToken ct = default)
     {
         var tx = await _transactions.GetByIdAsync(paymentId, ct);

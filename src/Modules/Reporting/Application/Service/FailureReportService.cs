@@ -22,10 +22,12 @@ public sealed class FailureReportService : Ports.Inbound.IFailureReportService
 
     private readonly IPaymentReadDataProvider _payments;
     private readonly ICustomerReadDataProvider _customers;
+    private readonly IOrderReadDataProvider _orders;
     private readonly IMemoryCache _cache;
 
-    public FailureReportService(IPaymentReadDataProvider payments, ICustomerReadDataProvider customers, IMemoryCache cache)
-        => (_payments, _customers, _cache) = (payments, customers, cache);
+    public FailureReportService(IPaymentReadDataProvider payments, ICustomerReadDataProvider customers,
+        IOrderReadDataProvider orders, IMemoryCache cache)
+        => (_payments, _customers, _orders, _cache) = (payments, customers, orders, cache);
 
     public async Task<Result<FailureReportPage>> GetCustomersWithFailedPaymentsAsync(FailureReportFilter filter, CancellationToken ct = default)
     {
@@ -63,12 +65,18 @@ public sealed class FailureReportService : Ports.Inbound.IFailureReportService
         if (!customersResult.IsSuccess) return Result.Failure<FailureReportPage>(customersResult.Error);
         var customersById = customersResult.Value!.ToDictionary(c => c.Id);
 
-        // 4. Join + optional status filter + page.
+        // 4. Join + optional status filter + page. Snapshots are wrapped in the
+        //    report node (LastOrder enriched in step 5).
         var entries = groups
             .Where(g => customersById.ContainsKey(g.CustomerId))
-            .Select(g => new CustomerFailureReportEntry(
-                customersById[g.CustomerId], g.Total, g.Currency, g.Items.Count,
-                (IReadOnlyList<FailedPaymentDto>)g.Items))
+            .Select(g =>
+            {
+                var s = customersById[g.CustomerId];
+                return new CustomerFailureReportEntry(
+                    new CustomerReportNode(s.Id, s.IdentityUserId, s.DisplayName, s.Status),
+                    g.Total, g.Currency, g.Items.Count,
+                    (IReadOnlyList<FailedPaymentDto>)g.Items);
+            })
             .Where(e => filter.CustomerStatus is null
                         || string.Equals(e.Customer.Status, filter.CustomerStatus, StringComparison.OrdinalIgnoreCase))
             .ToList();
@@ -76,6 +84,30 @@ public sealed class FailureReportService : Ports.Inbound.IFailureReportService
         var page = new FailureReportPage(
             [.. entries.Skip((filter.Page - 1) * filter.PageSize).Take(filter.PageSize)],
             entries.Count, filter.Page, filter.PageSize);
+
+        // 5. Orders read side — last order per FINAL-page customer (≤ PageSize ids),
+        //    ONE batched call regardless of page size.
+        //    IDENTITY TRANSLATION: Orders keys orders by IdentityUserId, so we map
+        //    Customer.Id → IdentityUserId before the call and back afterwards.
+        if (page.Items.Count > 0)
+        {
+            var identityByCustomerId = page.Items.ToDictionary(i => i.Customer.Id, i => i.Customer.IdentityUserId);
+            var lastOrdersResult = await _orders.GetLastOrdersByCustomerAsync([.. identityByCustomerId.Values], ct);
+            if (!lastOrdersResult.IsSuccess) return Result.Failure<FailureReportPage>(lastOrdersResult.Error);
+            var lastOrderByIdentity = lastOrdersResult.Value!.ToDictionary(o => o.CustomerId);
+
+            page = page with
+            {
+                Items = [.. page.Items.Select(i =>
+                    i with
+                    {
+                        Customer = i.Customer with
+                        {
+                            LastOrder = lastOrderByIdentity.GetValueOrDefault(identityByCustomerId[i.Customer.Id]),
+                        },
+                    })],
+            };
+        }
 
         _cache.Set(cacheKey, page, CacheTtl);
         return Result.Success(page);

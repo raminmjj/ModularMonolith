@@ -38,7 +38,7 @@ Host/ModularMonolith.Host/  ← Entry point (thin, only wires modules)
 2. **Application → EF Core**: Application must NOT depend on `Microsoft.EntityFrameworkCore`
 3. **Module isolation**: No module Application may reference another module's Application
    - **Exceptions**: `Orders.Adapter.Outbound` → `Catalog.Application`; `Payment.Adapter.Outbound` → `Customer.Application` (write-side ACL gateways)
-   - **Exception #3 (reads)**: `Reporting.Adapter.Outbound` → `Customer.QueryApplication` + `Payment.QueryApplication` (ADR-0006)
+   - **Exception #3 (reads)**: `Reporting.Adapter.Outbound` → `Customer.QueryApplication`, `Payment.QueryApplication`, `Orders.QueryApplication` (ADR-0006)
 4. **No Wolverine**: Any reference to `Wolverine` fails the build
 5. **Inbound/Outbound ports** must be interfaces; **Services** must be `sealed`
 5. **QueryApplication**: Read-only — no writes, no aggregate loading, no domain rules
@@ -108,7 +108,7 @@ docker compose up --build
 | `/api/v1/orders` | Create order (with stock reservation), status changes |
 | `/api/v1/customers` | Customer profiles, addresses, saved payment methods (tokens only) |
 | `/api/v1/payments` | Payment initiation (saved-card / new-token), capture/fail |
-| `/api/v1/admin/reports/graphql` | Admin GraphQL (HotChocolate): `customersWithFailedPayments(filter)` — Admin policy + `reports` rate-limit (10 req/min) |
+| `/api/v1/admin/reports/graphql` | Admin GraphQL (HotChocolate): full admin panel — Catalog/Customer/Order/Payment queries+mutations, analytics, failed-payments report. Admin policy ×2 + `reports` rate-limit + max-depth 10 (ADR-0007) |
 
 ### GraphQL example
 
@@ -118,7 +118,10 @@ query FailedPayments($f: FailureReportFilterInput!) {
     totalCount page pageSize
     items {
       totalFailedAmount currency failureCount
-      customer { id displayName status }
+      customer {
+        id displayName status
+        lastOrder { orderId orderDate totalAmount status itemCount }  # Orders module enrichment
+      }
       failures { paymentId orderId amount currency failedAt reason }
     }
   }

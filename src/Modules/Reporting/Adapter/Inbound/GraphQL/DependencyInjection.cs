@@ -9,8 +9,20 @@ public static class DependencyInjection
     {
         services
             .AddGraphQLServer("admin")
-            .AddQueryType<AdminReportQuery>()
-            .AddAuthorization(); // enables @authorize directive + [Authorize] on resolvers
+            .AddQueryType(d => d.Name("Query"))
+            .AddMutationType(d => d.Name("Mutation"))
+            .AddTypeExtension<AdminCatalogQueries>()
+            .AddTypeExtension<AdminCustomerQueries>()
+            .AddTypeExtension<AdminOrderQueries>()
+            .AddTypeExtension<AdminPaymentQueries>()
+            .AddTypeExtension<AdminAnalyticsQueries>()
+            .AddTypeExtension<AdminReportQueries>()   // failed-payments report (existing)
+            .AddTypeExtension<AdminCatalogMutations>()
+            .AddTypeExtension<AdminCustomerMutations>()
+            .AddTypeExtension<AdminOrderMutations>()
+            .AddTypeExtension<AdminPaymentMutations>()
+            .AddAuthorization() // enables @authorize directive + [Authorize] on resolvers
+            .AddMaxExecutionDepthRule(10); // guard against runaway nested queries
 
         return services;
     }

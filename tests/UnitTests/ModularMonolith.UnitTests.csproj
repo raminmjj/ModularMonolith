@@ -10,6 +10,7 @@
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="AwesomeAssertions" />
     <PackageReference Include="NSubstitute" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
     <PackageReference Include="coverlet.collector" />
   </ItemGroup>
   <ItemGroup>
@@ -18,5 +19,9 @@
     <ProjectReference Include="..\..\src\Modules\Orders\Application\ModularMonolith.Modules.Orders.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\Customer\Application\ModularMonolith.Modules.Customer.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\Payment\Application\ModularMonolith.Modules.Payment.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Orders\QueryApplication\ModularMonolith.Modules.Orders.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Customer\QueryApplication\ModularMonolith.Modules.Customer.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Payment\QueryApplication\ModularMonolith.Modules.Payment.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Reporting\Application\ModularMonolith.Modules.Reporting.Application.csproj" />
   </ItemGroup>
 </Project>

@@ -14,4 +14,5 @@ public interface IPaymentService
 
     Task<Result> CaptureAsync(Guid paymentId, CancellationToken ct = default);
     Task<Result> FailAsync(Guid paymentId, string reason, CancellationToken ct = default);
+    Task<Result> RefundAsync(Guid paymentId, CancellationToken ct = default);
 }

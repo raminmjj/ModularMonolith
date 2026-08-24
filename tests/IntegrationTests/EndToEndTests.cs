@@ -290,6 +290,190 @@ public class EndToEndTests : IClassFixture<WebApplicationFactory<Program>>
         }
     }
 
+    [Fact]
+    public async Task Admin_GraphQL_Report_Includes_LastOrder_From_Orders_Module()
+    {
+        // 0. Admin seed.
+        var adminEmail = $"admin{Guid.NewGuid():N}@example.com";
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
+            var hasher = scope.ServiceProvider.GetRequiredService<ModularMonolith.Modules.Identity.Application.Domain.Users.IPasswordHasher>();
+            var hash = hasher.Hash("StrongPass123!");
+            db.Users.Add(ModularMonolith.Modules.Identity.Application.Domain.Users.User.Register(
+                ModularMonolith.SharedKernel.ValueObjects.Email.Create(adminEmail),
+                ModularMonolith.Modules.Identity.Application.Domain.ValueObjects.HashedPassword.Create(hash.Hash, hash.Salt),
+                "Admin", ["Admin"]));
+            db.SaveChanges();
+        }
+
+        // 1. Product (admin) + customer (Dave) with saved card.
+        await LoginAsync(adminEmail, "StrongPass123!");
+        var productResp = await _client.PostAsJsonAsync("/api/v1/catalog/products", new
+        {
+            sku = $"L-{Guid.NewGuid():N}".Substring(0, 10).ToUpperInvariant(),
+            name = "Gadget", price = 9.99m, currency = "USD", initialStock = 50
+        });
+        productResp.EnsureSuccessStatusCode();
+        var product = await productResp.Content.ReadFromJsonAsync<ProductResponse>();
+
+        var registerResp = await _client.PostAsJsonAsync("/api/v1/identity/register", new
+        {
+            email = $"dave{Guid.NewGuid():N}@example.com", password = "StrongPass123!", displayName = "Dave"
+        });
+        registerResp.EnsureSuccessStatusCode();
+        var dave = await registerResp.Content.ReadFromJsonAsync<RegisterResponse>();
+        await LoginAsync(dave!.Email, "StrongPass123!");
+
+        var customerResp = await _client.PostAsJsonAsync("/api/v1/customers",
+            new { identityUserId = dave.Id, displayName = "Dave" });
+        customerResp.EnsureSuccessStatusCode();
+        var customer = await customerResp.Content.ReadFromJsonAsync<CustomerCreatedResponse>();
+        var methodResp = await _client.PostAsJsonAsync($"/api/v1/customers/{customer!.Id}/payment-methods",
+            new { tokenizedCard = "tok_visa_lastorder", cardType = "Visa", expiryDate = "2030-12-31" });
+        methodResp.EnsureSuccessStatusCode();
+        var method = await methodResp.Content.ReadFromJsonAsync<CustomerCreatedResponse>();
+
+        // 2. Dave places an ORDER (third module in the composition).
+        var orderResp = await _client.PostAsJsonAsync("/api/v1/orders", new
+        {
+            userId = dave.Id,
+            lines = new[] { new { productId = product!.Id, quantity = 2 } } // total 19.98, 1 line
+        });
+        orderResp.EnsureSuccessStatusCode();
+        var order = await orderResp.Content.ReadFromJsonAsync<OrderResponse>();
+
+        // 3. A payment FAILS.
+        var payResp = await _client.PostAsJsonAsync("/api/v1/payments/saved-card",
+            new { customerId = customer.Id, orderId = order!.Id, amount = 77.50m, currency = "USD", savedPaymentMethodId = method!.Id });
+        payResp.EnsureSuccessStatusCode();
+        var payment = await payResp.Content.ReadFromJsonAsync<PaymentCreatedResponse>();
+        (await _client.PostAsJsonAsync($"/api/v1/payments/{payment!.Id}/fail", new { reason = "card_declined" }))
+            .EnsureSuccessStatusCode();
+
+        // 4. Admin queries the report INCLUDING lastOrder.
+        await LoginAsync(adminEmail, "StrongPass123!");
+        var query = """
+            query Report($f: FailureReportFilterInput!) {
+              customersWithFailedPayments(filter: $f) {
+                totalCount
+                items {
+                  customer { id displayName lastOrder { orderId orderDate totalAmount status itemCount } }
+                  failures { amount reason }
+                }
+              }
+            }
+            """;
+        var graphQLResp = await _client.PostAsJsonAsync("/api/v1/admin/reports/graphql",
+            new { query, variables = new { f = new { minAmount = 50m, customerStatus = (string?)null, page = 1, pageSize = 20 } } });
+        if (!graphQLResp.IsSuccessStatusCode)
+        {
+            var errBody = await graphQLResp.Content.ReadAsStringAsync();
+            throw new Exception($"GRAPHQL HTTP {(int)graphQLResp.StatusCode}: {errBody[..Math.Min(700, errBody.Length)]}");
+        }
+        var rawBody = await graphQLResp.Content.ReadAsStringAsync();
+        var payload = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(rawBody);
+        var items = payload.GetProperty("data")
+            .GetProperty("customersWithFailedPayments").GetProperty("items");
+
+        CustomerLastOrderDto? lastOrder = null;
+        foreach (var item in items.EnumerateArray())
+        {
+            var cust = item.GetProperty("customer");
+            if (!Guid.TryParse(cust.GetProperty("id").GetString(), out var custId) || custId != customer.Id) continue;
+            item.GetProperty("failures").EnumerateArray().Single()
+                .GetProperty("reason").GetString().Should().Be("card_declined");
+            if (cust.TryGetProperty("lastOrder", out var lo) && lo.ValueKind == System.Text.Json.JsonValueKind.Object)
+                lastOrder = System.Text.Json.JsonSerializer.Deserialize<CustomerLastOrderDto>(lo.GetRawText(),
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+
+        lastOrder.Should().NotBeNull("the report must enrich customers with their last order from the Orders module");
+        lastOrder!.OrderId.Should().Be(order.Id);
+        lastOrder.Status.Should().Be("Pending");
+        lastOrder.TotalAmount.Should().Be(19.98m);
+        lastOrder.ItemCount.Should().Be(1);
+    }
+    [Fact]
+    public async Task AdminPanel_GraphQL_Full_Surface_Should_Work()
+    {
+        var adminEmail = $"admin{Guid.NewGuid():N}@example.com";
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
+            var hasher = scope.ServiceProvider.GetRequiredService<ModularMonolith.Modules.Identity.Application.Domain.Users.IPasswordHasher>();
+            var hash = hasher.Hash("StrongPass123!");
+            db.Users.Add(ModularMonolith.Modules.Identity.Application.Domain.Users.User.Register(
+                ModularMonolith.SharedKernel.ValueObjects.Email.Create(adminEmail),
+                ModularMonolith.Modules.Identity.Application.Domain.ValueObjects.HashedPassword.Create(hash.Hash, hash.Salt),
+                "Admin", ["Admin"]));
+            db.SaveChanges();
+        }
+        await LoginAsync(adminEmail, "StrongPass123!");
+
+        // 1. CATALOG: create product via mutation.
+        var sku = $"A-{Guid.NewGuid():N}".Substring(0, 10).ToUpperInvariant();
+        var createdRaw = await GraphQlRaw($$"""
+            mutation { createProduct(sku:"{{sku}}" name:"AdminWidget" price:15 currency:"USD" initialStock:30) }
+            """);
+        using (var doc = System.Text.Json.JsonDocument.Parse(createdRaw))
+            doc.RootElement.GetProperty("data").GetProperty("createProduct").GetGuid()
+                .Should().NotBeEmpty();
+        var productId = System.Text.Json.JsonDocument.Parse(createdRaw)
+            .RootElement.GetProperty("data").GetProperty("createProduct").GetGuid();
+
+        // 2. CATALOG list shows it; stock + price mutations work.
+        (await GraphQlRaw("{ products(includeInactive:true, page:1, pageSize:50) { sku stock } }"))
+            .Should().Contain(sku);
+        (await GraphQlRaw($"mutation {{ adjustProductStock(productId:\"{productId}\" delta:-5) }}"))
+            .Should().Contain("true");
+        (await GraphQlRaw($"mutation {{ changeProductPrice(productId:\"{productId}\" newPrice:17.5 currency:\"USD\") }}"))
+            .Should().Contain("true");
+
+        // 3. CUSTOMER: register + profile, then suspend via GraphQL.
+        var regResp = await _client.PostAsJsonAsync("/api/v1/identity/register", new
+        {
+            email = $"erin{Guid.NewGuid():N}@example.com", password = "StrongPass123!", displayName = "Erin"
+        });
+        regResp.EnsureSuccessStatusCode();
+        var erin = await regResp.Content.ReadFromJsonAsync<RegisterResponse>();
+        await LoginAsync(erin!.Email, "StrongPass123!");
+        var custResp = await _client.PostAsJsonAsync("/api/v1/customers",
+            new { identityUserId = erin.Id, displayName = "Erin" });
+        custResp.EnsureSuccessStatusCode();
+        var customer = await custResp.Content.ReadFromJsonAsync<CustomerCreatedResponse>();
+        await LoginAsync(adminEmail, "StrongPass123!");
+        (await GraphQlRaw($"mutation {{ suspendCustomer(customerId:\"{customer!.Id}\") }}"))
+            .Should().Contain("\"suspendCustomer\":true");
+
+        // 4. Suspended customer cannot pay (ACL still enforced through the saga).
+        var payAttempt = await _client.PostAsJsonAsync("/api/v1/payments/saved-card",
+            new { customerId = customer.Id, orderId = Guid.NewGuid(), amount = 5m, currency = "USD",
+                  savedPaymentMethodId = Guid.NewGuid() });
+        payAttempt.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+
+        // 5. ANALYTICS + PAYMENTS queries reachable.
+        (await GraphQlRaw("""
+            { salesSummary(from:"2026-01-01T00:00:00Z" to:"2027-01-01T00:00:00Z")
+                { totalCapturedAmount capturedCount pendingCount failedCount } }
+            """)).Should().Contain("salesSummary");
+        (await GraphQlRaw("{ payments(page:1, pageSize:10) { paymentId status } }"))
+            .Should().Contain("payments");
+
+        // 6. ORDERS list query reachable.
+        (await GraphQlRaw("{ orders(page:1, pageSize:10) { orderId status itemCount } }"))
+            .Should().Contain("orders");
+    }
+
+    private async Task<string> GraphQlRaw(string query)
+    {
+        var resp = await _client.PostAsJsonAsync("/api/v1/admin/reports/graphql", new { query });
+        var body = await resp.Content.ReadAsStringAsync();
+        if (!resp.IsSuccessStatusCode || body.Contains("\"errors\""))
+            throw new Exception($"GRAPHQL FAIL [{(int)resp.StatusCode}]: {body[..Math.Min(600, body.Length)]}");
+        return body;
+    }
+
     private async Task<LoginResponse> LoginAsync(string email, string password)
     {
         var loginResp = await _client.PostAsJsonAsync("/api/v1/identity/login", new { email, password });
@@ -308,4 +492,6 @@ public class EndToEndTests : IClassFixture<WebApplicationFactory<Program>>
     private sealed record PaymentCreatedResponse(Guid Id, string Status);
     private sealed record PaymentSnapshotDto(Guid Id, Guid CustomerId, Guid OrderId, decimal Amount,
         string Currency, string Status, string MethodToken);
+    private sealed record CustomerLastOrderDto(Guid OrderId, DateTimeOffset OrderDate, decimal TotalAmount,
+        string Status, int ItemCount);
 }

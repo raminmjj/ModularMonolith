@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ModularMonolith.Contracts.Catalog;
+using ModularMonolith.Contracts.Reporting;
 using ModularMonolith.Framework.Results;
 using ModularMonolith.Modules.Catalog.Application.Domain.Products;
 
@@ -15,6 +16,9 @@ public interface IProductQueryService
 {
     Task<Result<ProductSnapshot>> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<IReadOnlyList<ProductSnapshot>> ListAsync(int page, int pageSize, CancellationToken ct = default);
+
+    /// <summary>Flat product rows for the admin catalog (single SQL, optional search + inactive).</summary>
+    Task<IReadOnlyList<ProductAdminRowDto>> GetProductRowsAsync(string? search, bool includeInactive, int page, int pageSize, CancellationToken ct = default);
 }
 
 internal sealed class ProductQueryService : IProductQueryService
@@ -41,4 +45,24 @@ internal sealed class ProductQueryService : IProductQueryService
             .Skip((page - 1) * pageSize).Take(pageSize)
             .Select(p => new ProductSnapshot(p.Id, p.Name, p.Price.Amount, p.Stock - p.ReservedStock))
             .ToListAsync(ct);
+
+    public async Task<IReadOnlyList<ProductAdminRowDto>> GetProductRowsAsync(string? search, bool includeInactive, int page, int pageSize, CancellationToken ct = default)
+    {
+        var query = _db.Set<Product>().AsQueryable();
+
+        if (!includeInactive) query = query.Where(p => p.IsActive);
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            query = query.Where(p => p.Name.Contains(term) || p.Sku.Value.Contains(term));
+        }
+
+        return await query
+            .OrderByDescending(p => p.CreatedAt)
+            .Skip((page - 1) * pageSize).Take(pageSize)
+            .Select(p => new ProductAdminRowDto(
+                p.Id, p.Sku.Value, p.Name, p.Price.Amount, p.Price.Currency,
+                p.Stock, p.ReservedStock, p.AvailableStock, p.IsActive))
+            .ToListAsync(ct);
+    }
 }

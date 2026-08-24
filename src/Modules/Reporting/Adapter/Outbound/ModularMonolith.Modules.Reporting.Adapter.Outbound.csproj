@@ -8,14 +8,20 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Application\ModularMonolith.Modules.Reporting.Application.csproj" />
-    <!--
+    <ProjectReference Include="..\..\..\Catalog\Application\ModularMonolith.Modules.Catalog.Application.csproj" />
+    <ProjectReference Include="..\..\..\Customer\Application\ModularMonolith.Modules.Customer.Application.csproj" />
+    <ProjectReference Include="..\..\..\Orders\Application\ModularMonolith.Modules.Orders.Application.csproj" />
+    <ProjectReference Include="..\..\..\Payment\Application\ModularMonolith.Modules.Payment.Application.csproj" />
+    <!--'
       EXCEPTION #3 (READ-side ACL): the only assemblies allowed to reference
       Customer.QueryApplication / Payment.QueryApplication. Read composition
       mirrors the write-side gateway pattern: provider read models cross the
       boundary as Contracts DTOs via consumer-owned ports.
       Enforced by Only_Reporting_Adapter_Outbound_May_Reference_Read_Sides.
     -->
+    <ProjectReference Include="..\..\..\Catalog\QueryApplication\ModularMonolith.Modules.Catalog.QueryApplication.csproj" />
     <ProjectReference Include="..\..\..\Customer\QueryApplication\ModularMonolith.Modules.Customer.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\..\Orders\QueryApplication\ModularMonolith.Modules.Orders.QueryApplication.csproj" />
     <ProjectReference Include="..\..\..\Payment\QueryApplication\ModularMonolith.Modules.Payment.QueryApplication.csproj" />
   </ItemGroup>
 </Project>

@@ -58,6 +58,15 @@ public sealed class PaymentTransaction : AggregateRoot<Guid>
         Raise(new PaymentFailedDomainEvent(Id, reason));
     }
 
+    /// <summary>Refund is only valid from Captured (money previously taken).</summary>
+    public void MarkRefunded()
+    {
+        if (Status != PaymentStatus.Captured)
+            throw new DomainException("PAYMENT_NOT_REFUNDABLE", $"Only captured payments can be refunded (was '{Status.Value}').");
+        Status = PaymentStatus.Refunded;
+        Raise(new PaymentRefundedDomainEvent(Id));
+    }
+
     private void EnsurePending()
     {
         if (Status != PaymentStatus.Pending)
@@ -70,6 +79,7 @@ public sealed class PaymentStatus : ValueObject
     public static readonly PaymentStatus Pending = new("Pending");
     public static readonly PaymentStatus Captured = new("Captured");
     public static readonly PaymentStatus Failed = new("Failed");
+    public static readonly PaymentStatus Refunded = new("Refunded");
 
     public string Value { get; }
     private PaymentStatus(string value) => Value = value;

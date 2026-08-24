@@ -17,4 +17,5 @@ public interface IProductService
     Task<Result<ReservationSnapshot>> ReserveStockAsync(Guid productId, int quantity, TimeSpan ttl, CancellationToken ct = default);
     Task<Result> CommitReservationAsync(Guid productId, Guid reservationId, CancellationToken ct = default);
     Task<Result> ReleaseReservationAsync(Guid productId, Guid reservationId, CancellationToken ct = default);
+    Task<Result> DeactivateProductAsync(Guid productId, CancellationToken ct = default);
 }

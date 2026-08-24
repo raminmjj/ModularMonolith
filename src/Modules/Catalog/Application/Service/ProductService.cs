@@ -102,6 +102,16 @@ public sealed class ProductService : Ports.Inbound.IProductService
         return Result.Success();
     }
 
+    public async Task<Result> DeactivateProductAsync(Guid productId, CancellationToken ct = default)
+    {
+        var product = await _products.GetByIdAsync(productId, ct);
+        if (product is null) return Result.Failure(new Error("PRODUCT_NOT_FOUND", "Product was not found."));
+        try { product.Deactivate(); }
+        catch (DomainException dex) { return Result.Failure(new Error(dex.Code, dex.Message)); }
+        await _unitOfWork.SaveChangesAsync(ct);
+        return Result.Success();
+    }
+
     public async Task<Result<ReservationSnapshot>> ReserveStockAsync(Guid productId, int quantity, TimeSpan ttl, CancellationToken ct = default)
     {
         // Hexagon boundary validation

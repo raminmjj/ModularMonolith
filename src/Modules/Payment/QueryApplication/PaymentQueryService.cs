@@ -18,6 +18,13 @@ public interface IPaymentQueryService
     /// </summary>
     Task<IReadOnlyList<FailedPaymentDto>> GetFailedPaymentsAsync(
         DateTimeOffset? from, DateTimeOffset? to, decimal? minAmount, CancellationToken ct = default);
+
+    /// <summary>Flat payment rows for the admin payment list (single filtered SQL).</summary>
+    Task<IReadOnlyList<PaymentAdminRowDto>> ListPaymentsAsync(
+        DateTimeOffset? from, DateTimeOffset? to, string? status, int page, int pageSize, CancellationToken ct = default);
+
+    /// <summary>Latest payment for an order (admin order-detail composition).</summary>
+    Task<Result<PaymentSnapshot>> GetByOrderIdAsync(Guid orderId, CancellationToken ct = default);
 }
 
 /// <summary>
@@ -64,5 +71,38 @@ internal sealed class PaymentQueryService(PaymentDbContext db) : IPaymentQuerySe
                 p.Id, p.CustomerId, p.OrderId, p.Amount.Amount, p.Amount.Currency,
                 p.FailedAt!.Value, p.FailureReason))
             .ToListAsync(ct);
+    }
+
+    public async Task<IReadOnlyList<PaymentAdminRowDto>> ListPaymentsAsync(
+        DateTimeOffset? from, DateTimeOffset? to, string? status, int page, int pageSize, CancellationToken ct = default)
+    {
+        var query = db.Set<PaymentTransaction>().AsQueryable();
+
+        if (from is not null) query = query.Where(p => p.CreatedAt >= from);
+        if (to is not null) query = query.Where(p => p.CreatedAt <= to);
+        if (!string.IsNullOrWhiteSpace(status)) query = query.Where(p => p.Status.Value == status);
+
+        return await query
+            .OrderByDescending(p => p.CreatedAt)
+            .Skip((page - 1) * pageSize).Take(pageSize)
+            .Select(p => new PaymentAdminRowDto(
+                p.Id, p.CustomerId, p.OrderId, p.Amount.Amount, p.Amount.Currency,
+                p.Status.Value, p.CreatedAt, p.Method.Token))
+            .ToListAsync(ct);
+    }
+
+    public async Task<Result<PaymentSnapshot>> GetByOrderIdAsync(Guid orderId, CancellationToken ct = default)
+    {
+        var result = await db.Set<PaymentTransaction>()
+            .Where(p => p.OrderId == orderId)
+            .OrderByDescending(p => p.CreatedAt)
+            .Select(p => new PaymentSnapshot(
+                p.Id, p.CustomerId, p.OrderId, p.Amount.Amount, p.Amount.Currency,
+                p.Status.Value, p.Method.Token))
+            .FirstOrDefaultAsync(ct);
+
+        return result is null
+            ? Result.Failure<PaymentSnapshot>(new Error("PAYMENT_NOT_FOUND", "No payment exists for this order."))
+            : Result.Success(result);
     }
 }

@@ -21,9 +21,30 @@ public sealed record FailedPaymentDto(
     DateTimeOffset FailedAt,
     string? Reason);
 
+/// <summary>Last (most recent) order of a customer — flat row supplied by the Orders read side.</summary>
+public sealed record LastOrderDto(
+    Guid OrderId,
+    Guid CustomerId,
+    DateTimeOffset OrderDate,
+    decimal TotalAmount,
+    string Status,
+    int ItemCount);
+
+/// <summary>
+/// Customer node as exposed in report entries: profile fields from the Customer
+/// read side PLUS enriched cross-module data (last order from Orders read side).
+/// </summary>
+public sealed record CustomerReportNode(
+    Guid Id,
+    Guid IdentityUserId,
+    string DisplayName,
+    string Status,
+    LastOrderDto? LastOrder = null);
+
 /// <summary>Composed report entry: customer info + their aggregated failures.</summary>
+/// <param name="LastOrder">Most recent order, if any. Nullable = backward-compatible GraphQL addition.</param>
 public sealed record CustomerFailureReportEntry(
-    CustomerSnapshot Customer,
+    CustomerReportNode Customer,
     decimal TotalFailedAmount,
     string Currency,
     int FailureCount,
