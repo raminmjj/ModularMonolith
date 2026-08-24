@@ -3,7 +3,6 @@ using ModularMonolith.Modules.Catalog.QueryApplication;
 using ModularMonolith.Modules.Customer.QueryApplication;
 using ModularMonolith.Modules.Orders.QueryApplication;
 using ModularMonolith.Modules.Payment.QueryApplication;
-using ModularMonolith.Modules.Admin.Application.Ports.Outbound;
 
 namespace ModularMonolith.Modules.Admin.Adapter.Outbound;
 
@@ -20,13 +19,13 @@ public static class DependencyInjection
         services.AddScoped<Application.Ports.Outbound.IProductReadDataProvider, ProductReadDataProvider>();
         services.AddScoped<Application.Ports.Outbound.IPaymentAdminReadProvider, PaymentReadDataProvider>();
         services.AddScoped<Application.Ports.Outbound.ICustomerAdminReadProvider, CustomerReadDataProvider>();
-        services.AddScoped<Application.Ports.Outbound.IOrderReadDataProvider, OrdersReadDataProvider>();
 
-        // Write-side ACL gateways (ADR-0007) — delegate to provider inbound ports.
-        services.AddScoped<Application.Ports.Outbound.ICatalogAdminProvider, CatalogAdminGateway>();
-        services.AddScoped<Application.Ports.Outbound.ICustomerAdminProvider, CustomerAdminGateway>();
-        services.AddScoped<Application.Ports.Outbound.IOrdersAdminProvider, OrdersAdminGateway>();
-        services.AddScoped<Application.Ports.Outbound.IPaymentAdminProvider, PaymentAdminGateway>();
+        // Write-side ACL gateways (ADR-0007 amendment) — delegate to the domain
+        // modules' OWN admin ports (domain-owned operations).
+        services.AddScoped<Application.Ports.Outbound.ICatalogAdminGateway, CatalogAdminGateway>();
+        services.AddScoped<Application.Ports.Outbound.ICustomerAdminGateway, CustomerAdminGateway>();
+        services.AddScoped<Application.Ports.Outbound.IOrdersAdminGateway, OrdersAdminGateway>();
+        services.AddScoped<Application.Ports.Outbound.IPaymentAdminGateway, PaymentAdminGateway>();
         return services;
     }
 }

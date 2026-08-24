@@ -3,6 +3,7 @@ using ModularMonolith.Contracts.Customer;
 using ModularMonolith.Contracts.Admin;
 using ModularMonolith.Framework.Results;
 using ModularMonolith.Modules.Admin.Application.Ports.Inbound;
+using ModularMonolith.Modules.Admin.Application.Ports.Outbound;
 
 namespace ModularMonolith.Modules.Admin.Adapter.Inbound.GraphQL;
 
@@ -33,8 +34,8 @@ public sealed class AdminCatalogQueries
     [Authorize(Policy = "Admin")]
     public async Task<IReadOnlyList<ProductAdminRowDto>> Products(
         string? search, bool includeInactive, int page, int pageSize,
-        [Service] IAdminCatalogService service, CancellationToken ct)
-        => (await service.ListProductsAsync(search, includeInactive, page, pageSize, ct)).ThrowIfFailure();
+        [Service] IProductReadDataProvider products, CancellationToken ct)
+        => (await products.GetProductRowsAsync(search, includeInactive, page, pageSize, ct)).ThrowIfFailure();
 }
 
 [ExtendObjectType("Query")]
@@ -44,8 +45,8 @@ public sealed class AdminCustomerQueries
     [Authorize(Policy = "Admin")]
     public async Task<IReadOnlyList<CustomerSnapshot>> Customers(
         string? search, string? status, int page, int pageSize,
-        [Service] IAdminCustomerService service, CancellationToken ct)
-        => (await service.SearchAsync(search, status, page, pageSize, ct)).ThrowIfFailure();
+        [Service] ICustomerAdminReadProvider customers, CancellationToken ct)
+        => (await customers.SearchCustomersAsync(search, status, page, pageSize, ct)).ThrowIfFailure();
 
     /// <summary>Customer detail: profile + order history + payments (3 batched calls).</summary>
     [Authorize(Policy = "Admin")]
@@ -61,8 +62,8 @@ public sealed class AdminOrderQueries
     [Authorize(Policy = "Admin")]
     public async Task<IReadOnlyList<OrderAdminRowDto>> Orders(
         DateTimeOffset? from, DateTimeOffset? to, string? status, int page, int pageSize,
-        [Service] IAdminOrderService service, CancellationToken ct)
-        => (await service.ListAsync(from, to, status, page, pageSize, ct)).ThrowIfFailure();
+        [Service] IOrderReadDataProvider orders, CancellationToken ct)
+        => (await orders.ListOrdersAsync(from, to, status, page, pageSize, ct)).ThrowIfFailure();
 
     /// <summary>Order detail incl. latest payment status.</summary>
     [Authorize(Policy = "Admin")]
@@ -78,8 +79,8 @@ public sealed class AdminPaymentQueries
     [Authorize(Policy = "Admin")]
     public async Task<IReadOnlyList<PaymentAdminRowDto>> Payments(
         DateTimeOffset? from, DateTimeOffset? to, string? status, int page, int pageSize,
-        [Service] IAdminPaymentService service, CancellationToken ct)
-        => (await service.ListAsync(from, to, status, page, pageSize, ct)).ThrowIfFailure();
+        [Service] IPaymentAdminReadProvider payments, CancellationToken ct)
+        => (await payments.ListPaymentsAsync(from, to, status, page, pageSize, ct)).ThrowIfFailure();
 }
 
 [ExtendObjectType("Query")]

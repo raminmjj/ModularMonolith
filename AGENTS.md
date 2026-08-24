@@ -153,6 +153,8 @@ query FailedPayments($f: FailureReportFilterInput!) {
 - **Expecting auto-migrations on startup** — they don't happen; run `--migrate` explicitly
 - **Composing cross-module reads outside Admin** — provider QueryApplications may only be consumed by `Admin.Adapter.Outbound` (arch-tested)
 - **Adding a DbContext to Admin** — it owns no data by design; composition goes through its outbound ports
+- **Putting single-module admin operations in the Admin module** — they belong in the owning module's admin service (`Catalog.ICatalogAdminService`, `Customer.ICustomerAdminService`, …); Admin composes, domains own (ADR-0007)
+- **Adding domain logic to Admin.Application or the GraphQL adapter** — arch-tested via `Admin_Composition_Layers_Must_Be_Aggregate_Free` (no DDD dependency allowed there)
 - **Summing report amounts across currencies** — the service throws rather than producing misleading totals
 - **Assuming cross-module calls are atomic** — they are a synchronous saga with compensation (`CrossModuleSaga`, ADR-0005); every step needs an idempotent compensation, and compensation failures are logged/metered, never swallowed
 - **Setting Guid keys on child entities without `ValueGeneratedNever()`** — see dotnet/efcore#27736; EF tracks new children as Modified and SaveChanges throws

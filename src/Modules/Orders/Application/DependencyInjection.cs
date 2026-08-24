@@ -7,6 +7,7 @@ public static class DependencyInjection
     public static IServiceCollection AddOrdersApplication(this IServiceCollection services)
     {
         services.AddScoped<Ports.Inbound.IOrderService, Service.OrderService>();
+        services.AddScoped<Ports.Inbound.IOrderAdminService, Service.OrderAdminService>();
         return services;
     }
 }

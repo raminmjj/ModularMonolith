@@ -14,6 +14,7 @@ public static class DependencyInjection
         services.AddScoped<CreateProductValidator>();
         services.AddScoped<ChangePriceValidator>();
         services.AddScoped<ReserveStockValidator>();
+        services.AddScoped<Ports.Inbound.ICatalogAdminService, Service.CatalogAdminService>();
 
         return services;
     }

@@ -19,37 +19,22 @@ public sealed record OrderDetail(
     OrderAdminRowDto Order,
     PaymentSnapshot? Payment);
 
-/// <summary>Inbound port for catalog admin (queries + mutations).</summary>
-public interface IAdminCatalogService
-{
-    Task<Result<IReadOnlyList<ProductAdminRowDto>>> ListProductsAsync(string? search, bool includeInactive, int page, int pageSize, CancellationToken ct = default);
-    Task<Result<Guid>> CreateProductAsync(string sku, string name, decimal price, string currency, int initialStock, string? description, CancellationToken ct = default);
-    Task<Result> ChangePriceAsync(Guid productId, decimal newPrice, string currency, CancellationToken ct = default);
-    Task<Result> AdjustStockAsync(Guid productId, int delta, CancellationToken ct = default);
-    Task<Result> DeactivateProductAsync(Guid productId, CancellationToken ct = default);
-}
-
+/// <summary>
+/// COMPOSITION-ONLY admin services (ADR-0007 amendment). Single-module operations
+/// live in the domain modules' own admin ports (Catalog.ICatalogAdminService, …);
+/// the Admin module reaches them through its outbound gateway ports. Only
+/// cross-module composition remains here.
+/// </summary>
 public interface IAdminCustomerService
 {
-    Task<Result<IReadOnlyList<CustomerSnapshot>>> SearchAsync(string? search, string? status, int page, int pageSize, CancellationToken ct = default);
+    /// <summary>Customer 360: profile + order history + payments (three read sides).</summary>
     Task<Result<CustomerDetail>> GetDetailAsync(Guid customerId, CancellationToken ct = default);
-    Task<Result> SuspendAsync(Guid customerId, CancellationToken ct = default);
-    Task<Result> ReactivateAsync(Guid customerId, CancellationToken ct = default);
 }
 
 public interface IAdminOrderService
 {
-    Task<Result<IReadOnlyList<OrderAdminRowDto>>> ListAsync(DateTimeOffset? from, DateTimeOffset? to, string? status, int page, int pageSize, CancellationToken ct = default);
+    /// <summary>Order + latest payment status (two read sides).</summary>
     Task<Result<OrderDetail>> GetDetailAsync(Guid orderId, CancellationToken ct = default);
-    Task<Result> ChangeStatusAsync(Guid orderId, string newStatus, CancellationToken ct = default);
-}
-
-public interface IAdminPaymentService
-{
-    Task<Result<IReadOnlyList<PaymentAdminRowDto>>> ListAsync(DateTimeOffset? from, DateTimeOffset? to, string? status, int page, int pageSize, CancellationToken ct = default);
-    Task<Result> CaptureAsync(Guid paymentId, CancellationToken ct = default);
-    Task<Result> RefundAsync(Guid paymentId, CancellationToken ct = default);
-    Task<Result> FailAsync(Guid paymentId, string reason, CancellationToken ct = default);
 }
 
 public interface IAdminAnalyticsService

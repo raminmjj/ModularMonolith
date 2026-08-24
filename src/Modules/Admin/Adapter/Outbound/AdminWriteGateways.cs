@@ -7,31 +7,31 @@ using ModularMonolith.Modules.Admin.Application.Ports.Outbound;
 
 namespace ModularMonolith.Modules.Admin.Adapter.Outbound;
 
-// ─── WRITE-side ACL gateways (ADR-0007) ───
-// Delegate DIRECTLY to provider inbound ports — the same sanctioned pattern as the
-// Orders→Catalog and Payment→Customer gateways. Arch rule: ONLY this adapter may
-// reference provider write-side Applications; Admin.Application + GraphQL stay blind.
+// ─── WRITE-side ACL gateways (ADR-0007 amendment: domain-owned admin operations) ───
+// Each gateway delegates to the OWNING module's dedicated admin port
+// (Catalog.ICatalogAdminService, …) — NOT to raw public services. The domain module
+// owns the capability; Admin only reaches it across the boundary.
 
-internal sealed class CatalogAdminGateway(IProductService products) : ICatalogAdminProvider
+internal sealed class CatalogAdminGateway(Catalog.Application.Ports.Inbound.ICatalogAdminService catalog) : ICatalogAdminGateway
 {
     public async Task<Result<Guid>> CreateProductAsync(string sku, string name, decimal price, string currency,
         int initialStock, string? description, CancellationToken ct = default)
     {
-        var result = await products.CreateProductAsync(sku, name, price, currency, initialStock, description, ct);
-        return result.IsSuccess ? Result.Success(result.Value!.Id) : Result.Failure<Guid>(result.Error);
+        var result = await catalog.CreateProductAsync(sku, name, price, currency, initialStock, description, ct);
+        return result.IsSuccess ? Result.Success(result.Value!) : Result.Failure<Guid>(result.Error);
     }
 
     public Task<Result> ChangePriceAsync(Guid productId, decimal newPrice, string currency, CancellationToken ct = default)
-        => products.ChangePriceAsync(productId, newPrice, currency, ct);
+        => catalog.ChangePriceAsync(productId, newPrice, currency, ct);
 
     public Task<Result> AdjustStockAsync(Guid productId, int delta, CancellationToken ct = default)
-        => products.AdjustStockAsync(productId, delta, ct);
+        => catalog.AdjustStockAsync(productId, delta, ct);
 
     public Task<Result> DeactivateProductAsync(Guid productId, CancellationToken ct = default)
-        => products.DeactivateProductAsync(productId, ct);
+        => catalog.DeactivateProductAsync(productId, ct);
 }
 
-internal sealed class CustomerAdminGateway(ICustomerInboundPort customers) : ICustomerAdminProvider
+internal sealed class CustomerAdminGateway(Customer.Application.Ports.Inbound.ICustomerAdminService customers) : ICustomerAdminGateway
 {
     public Task<Result> SuspendAsync(Guid customerId, CancellationToken ct = default)
         => customers.SuspendAsync(customerId, ct);
@@ -40,13 +40,13 @@ internal sealed class CustomerAdminGateway(ICustomerInboundPort customers) : ICu
         => customers.ReactivateAsync(customerId, ct);
 }
 
-internal sealed class OrdersAdminGateway(IOrderService orders) : IOrdersAdminProvider
+internal sealed class OrdersAdminGateway(Orders.Application.Ports.Inbound.IOrderAdminService orders) : IOrdersAdminGateway
 {
     public Task<Result> ChangeStatusAsync(Guid orderId, string newStatus, CancellationToken ct = default)
         => orders.ChangeStatusAsync(orderId, newStatus, ct);
 }
 
-internal sealed class PaymentAdminGateway(IPaymentService payments) : IPaymentAdminProvider
+internal sealed class PaymentAdminGateway(Payment.Application.Ports.Inbound.IPaymentAdminService payments) : IPaymentAdminGateway
 {
     public Task<Result> CaptureAsync(Guid paymentId, CancellationToken ct = default)
         => payments.CaptureAsync(paymentId, ct);

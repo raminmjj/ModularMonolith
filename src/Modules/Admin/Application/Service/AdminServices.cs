@@ -8,54 +8,20 @@ using ModularMonolith.Modules.Admin.Application.Ports.Outbound;
 
 namespace ModularMonolith.Modules.Admin.Application.Service;
 
-// All admin services: thin orchestration over read-side ports + write-side gateway
-// ports. Validation of report-style inputs mirrors FailureReportService; caching
-// (30s) applies to expensive analytics only — CRUD reads stay live.
+// ─── COMPOSITION-ONLY admin services (ADR-0007 amendment) ───
+// Every method here joins data from ≥2 module read sides. Single-module operations
+// live in the domain modules' admin ports and are reached by GraphQL through the
+// Admin gateway ports — never re-implemented here.
 
-internal sealed class AdminCatalogService(
-    IProductReadDataProvider productReads,
-    ICatalogAdminProvider catalogWrites) : Ports.Inbound.IAdminCatalogService
-{
-    private const int MaxPageSize = 100;
-
-    public async Task<Result<IReadOnlyList<ProductAdminRowDto>>> ListProductsAsync(
-        string? search, bool includeInactive, int page, int pageSize, CancellationToken ct = default)
-    {
-        if (page < 1) return Result.Failure<IReadOnlyList<ProductAdminRowDto>>(new Error("PAGE_INVALID", "Page must be >= 1."));
-        if (pageSize is < 1 or > MaxPageSize)
-            return Result.Failure<IReadOnlyList<ProductAdminRowDto>>(new Error("PAGE_SIZE_INVALID", $"PageSize must be between 1 and {MaxPageSize}."));
-        return await productReads.GetProductRowsAsync(search, includeInactive, page, pageSize, ct);
-    }
-
-    public Task<Result<Guid>> CreateProductAsync(string sku, string name, decimal price, string currency,
-        int initialStock, string? description, CancellationToken ct = default)
-        => catalogWrites.CreateProductAsync(sku, name, price, currency, initialStock, description, ct);
-
-    public Task<Result> ChangePriceAsync(Guid productId, decimal newPrice, string currency, CancellationToken ct = default)
-        => catalogWrites.ChangePriceAsync(productId, newPrice, currency, ct);
-
-    public Task<Result> AdjustStockAsync(Guid productId, int delta, CancellationToken ct = default)
-        => catalogWrites.AdjustStockAsync(productId, delta, ct);
-
-    public Task<Result> DeactivateProductAsync(Guid productId, CancellationToken ct = default)
-        => catalogWrites.DeactivateProductAsync(productId, ct);
-}
-
+/// <summary>Customer 360: profile + order history + payments. THREE batched calls.</summary>
 internal sealed class AdminCustomerService(
-    ICustomerReadDataProvider customerReadsByIds,
-    ICustomerAdminReadProvider customerSearch,
+    ICustomerReadDataProvider customerReads,
     IOrderReadDataProvider orderReads,
-    IPaymentAdminReadProvider paymentReads,
-    ICustomerAdminProvider customerWrites) : Ports.Inbound.IAdminCustomerService
+    IPaymentAdminReadProvider paymentReads) : Ports.Inbound.IAdminCustomerService
 {
-    public async Task<Result<IReadOnlyList<CustomerSnapshot>>> SearchAsync(
-        string? search, string? status, int page, int pageSize, CancellationToken ct = default)
-        => await customerSearch.SearchCustomersAsync(search, status, page, pageSize, ct);
-
-    /// <summary>Composes profile + order history + payments. THREE batched calls total.</summary>
     public async Task<Result<CustomerDetail>> GetDetailAsync(Guid customerId, CancellationToken ct = default)
     {
-        var customersResult = await customerReadsByIds.GetCustomersByIdsAsync([customerId], ct);
+        var customersResult = await customerReads.GetCustomersByIdsAsync([customerId], ct);
         if (!customersResult.IsSuccess) return Result.Failure<CustomerDetail>(customersResult.Error);
         var snapshot = customersResult.Value!.FirstOrDefault();
         if (snapshot is null)
@@ -78,24 +44,13 @@ internal sealed class AdminCustomerService(
         ];
         return Result.Success(new CustomerDetail(snapshot, orderRows, paymentRows));
     }
-
-    public Task<Result> SuspendAsync(Guid customerId, CancellationToken ct = default)
-        => customerWrites.SuspendAsync(customerId, ct);
-
-    public Task<Result> ReactivateAsync(Guid customerId, CancellationToken ct = default)
-        => customerWrites.ReactivateAsync(customerId, ct);
 }
 
+/// <summary>Order detail: header row + latest payment for the order. TWO calls.</summary>
 internal sealed class AdminOrderService(
     IOrderReadDataProvider orderReads,
-    IPaymentAdminReadProvider paymentReads,
-    IOrdersAdminProvider orderWrites) : Ports.Inbound.IAdminOrderService
+    IPaymentAdminReadProvider paymentReads) : Ports.Inbound.IAdminOrderService
 {
-    public async Task<Result<IReadOnlyList<OrderAdminRowDto>>> ListAsync(
-        DateTimeOffset? from, DateTimeOffset? to, string? status, int page, int pageSize, CancellationToken ct = default)
-        => await orderReads.ListOrdersAsync(from, to, status, page, pageSize, ct);
-
-    /// <summary>Header + latest payment for the order. TWO calls, constant.</summary>
     public async Task<Result<OrderDetail>> GetDetailAsync(Guid orderId, CancellationToken ct = default)
     {
         var ordersResult = await orderReads.ListOrdersAsync(null, null, null, 1, int.MaxValue, ct);
@@ -109,27 +64,6 @@ internal sealed class AdminOrderService(
 
         return Result.Success(new OrderDetail(row, payment));
     }
-
-    public Task<Result> ChangeStatusAsync(Guid orderId, string newStatus, CancellationToken ct = default)
-        => orderWrites.ChangeStatusAsync(orderId, newStatus, ct);
-}
-
-internal sealed class AdminPaymentService(
-    IPaymentAdminReadProvider paymentReads,
-    IPaymentAdminProvider paymentWrites) : Ports.Inbound.IAdminPaymentService
-{
-    public async Task<Result<IReadOnlyList<PaymentAdminRowDto>>> ListAsync(
-        DateTimeOffset? from, DateTimeOffset? to, string? status, int page, int pageSize, CancellationToken ct = default)
-        => await paymentReads.ListPaymentsAsync(from, to, status, page, pageSize, ct);
-
-    public Task<Result> CaptureAsync(Guid paymentId, CancellationToken ct = default)
-        => paymentWrites.CaptureAsync(paymentId, ct);
-
-    public Task<Result> RefundAsync(Guid paymentId, CancellationToken ct = default)
-        => paymentWrites.RefundAsync(paymentId, ct);
-
-    public Task<Result> FailAsync(Guid paymentId, string reason, CancellationToken ct = default)
-        => paymentWrites.FailAsync(paymentId, reason, ct);
 }
 
 /// <summary>

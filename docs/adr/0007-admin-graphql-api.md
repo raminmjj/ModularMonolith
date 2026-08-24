@@ -6,6 +6,72 @@ after absorbing mutations, "Reporting" implied read-only and misled. Namespaces
 (`Modules.Admin.*`, `Contracts.Admin.*`), DI methods (`AddAdminModule`), and the arch
 rules were renamed with it; ADR-0006 references to "Reporting" are historical.
 
+## Amendment — Domain-Owned Admin Operations ("thin composition layer")
+
+**Problem:** after the mutation wave, `Admin.Application` held five admin services,
+several of which were pass-throughs to a single provider (a "God Module" smell):
+`CreateProduct`, `ChangePrice`, `AdjustStock`, `Deactivate`, `Suspend`, `Reactivate`,
+`ChangeOrderStatus`, `Capture`, `Fail`, `Refund` touched exactly one domain each.
+
+**Classification rule applied to every operation:**
+
+| Test | Classification | Home |
+|---|---|---|
+| Mutates/reads ONE module only | Domain-owned | `{Module}.Application` admin service |
+| Joins ≥2 modules | Composition | `Admin.Application` service |
+| Pure projection of one module's store | Read-side ACL | stays via Admin read ports → QueryApplication |
+
+**Changes made:**
+
+1. **Domain-owned writes moved into their owning modules**, each behind a dedicated
+   inbound port in that module's `Application/Ports/Inbound/`:
+   - `Catalog.ICatalogAdminService` / `CatalogAdminService`
+   - `Customer.ICustomerAdminService` / `CustomerAdminService`
+   - `Orders.IOrderAdminService` / `OrderAdminService`
+   - `Payment.IPaymentAdminService` / `PaymentAdminService`
+
+   v1 implementations delegate to each module's existing public service — zero logic
+   duplication, zero behavior change. The deliverable is the *seam*: module-specific
+   admin rules (audit fields, approval workflows, bulk ops) now have an obvious,
+   boundary-respecting home.
+
+2. **Admin write gateways repointed**: `ICatalogAdminGateway` etc. now delegate to the
+   domain admin ports instead of raw public services. Dependency direction unchanged.
+
+3. **Admin.Application slimmed to composition-only**: `IAdminCatalogService` and
+   `IAdminPaymentService` deleted entirely; `IAdminCustomerService` reduced to
+   `GetDetailAsync` (Customer 360); `IAdminOrderService` reduced to `GetDetailAsync`.
+   Analytics + failed-payments report unchanged. GraphQL list queries resolve through
+   the read-side ports (`IProductReadDataProvider`, …) as before.
+
+4. **Reads stayed on the QueryApplication path** (not moved into domains) because
+   `domain.Application → own QueryApplication` would create a circular reference
+   (`QueryApplication → Adapter.Outbound → Application`). Projections are not domain
+   logic, so nothing was lost.
+
+5. **New machine check:** `Admin_Composition_Layers_Must_Be_Aggregate_Free` —
+   `Admin.Application` and the GraphQL assembly may not reference `ModularMonolith.DDD`;
+   any aggregate/entity work would require it, so domain logic physically cannot hide
+   there. Combined with the existing write-confinement rule, the composition layer is
+   verifiably thin.
+
+### Example — simple operation (domain-owned)
+```
+GraphQL createProduct ─► ICatalogAdminGateway (Admin.App port)
+  ─► CatalogAdminGateway (Admin.Adapter.Outbound)
+    ─► Catalog.ICatalogAdminService (Catalog.Application)   ← capability lives HERE
+      ─► IProductService ─► Product aggregate
+```
+
+### Example — complex composition (Admin-owned)
+```
+GraphQL customer(id) ─► IAdminCustomerService (Admin.App)
+  ├─ ICustomerReadDataProvider ─► Customer.QueryApplication   (profile)
+  ├─ IOrderReadDataProvider    ─► Orders.QueryApplication     (history, by IdentityUserId)
+  └─ IPaymentAdminReadProvider ─► Payment.QueryApplication    (payments)
+  = CustomerDetail composed in-memory
+```
+
 ## Context
 The admin panel needs a single API covering catalog management, customer management,
 order management, analytics, and payment operations. The Reporting module (ADR-0006)
