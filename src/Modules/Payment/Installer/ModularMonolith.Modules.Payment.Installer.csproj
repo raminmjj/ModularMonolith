@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ModularMonolith.Modules.Payment</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Application\ModularMonolith.Modules.Payment.Application.csproj" />
+    <ProjectReference Include="..\Adapter\Outbound\ModularMonolith.Modules.Payment.Adapter.Outbound.csproj" />
+    <ProjectReference Include="..\Adapter\Inbound\Rest\ModularMonolith.Modules.Payment.Adapter.Inbound.Rest.csproj" />
+    <ProjectReference Include="..\QueryApplication\ModularMonolith.Modules.Payment.QueryApplication.csproj" />
+  </ItemGroup>
+</Project>

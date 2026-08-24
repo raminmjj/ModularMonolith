@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<ArrayOfArrayOfArrayOfString xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ArrayOfArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\BuildingBlocks\Infrastructure.Persistence\Persistence\EfCoreBase.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\Modules\Customer\QueryApplication\CustomerQueryService.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\Modules\Payment\QueryApplication\DependencyInjection.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\Modules\Payment\QueryApplication\PaymentQueryService.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\Modules\Payment\Adapter\Inbound\Rest\Endpoints\PaymentsEndpoints.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\BuildingBlocks\Contracts\Payment\PaymentDtos.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\BuildingBlocks\Contracts\Orders\Snapshots.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\BuildingBlocks\Contracts\Identity\Snapshots.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\BuildingBlocks\Contracts\Customer\CustomerDtos.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\Modules\Payment\Adapter\Outbound\Gateways\CustomerGateway.cs</string>
+    </ArrayOfString>
+  </ArrayOfArrayOfString>
+</ArrayOfArrayOfArrayOfString>

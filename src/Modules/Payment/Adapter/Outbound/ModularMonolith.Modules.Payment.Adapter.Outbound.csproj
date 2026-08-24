@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ModularMonolith.Modules.Payment.Adapter.Outbound</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Application\ModularMonolith.Modules.Payment.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\BuildingBlocks\Infrastructure.Persistence\ModularMonolith.Infrastructure.Persistence.csproj" />
+    <!--
+      EXCEPTION #2 (the ONLY sanctioned cross-Application reference for Payment):
+      the ACL gateway delegates directly to Customer's ICustomerInboundPort.
+      Enforced by Only_The_Sanctioned_Gateway_Adapter_May_Reference_Provider_Application.
+    -->
+    <ProjectReference Include="..\..\..\Customer\Application\ModularMonolith.Modules.Customer.Application.csproj" />
+  </ItemGroup>
+</Project>

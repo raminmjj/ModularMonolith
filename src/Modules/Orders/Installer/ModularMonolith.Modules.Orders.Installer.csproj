@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ModularMonolith.Modules.Orders</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Application\ModularMonolith.Modules.Orders.Application.csproj" />
+    <ProjectReference Include="..\Adapter\Outbound\ModularMonolith.Modules.Orders.Adapter.Outbound.csproj" />
+    <ProjectReference Include="..\Adapter\Inbound\Rest\ModularMonolith.Modules.Orders.Adapter.Inbound.Rest.csproj" />
+    <ProjectReference Include="..\QueryApplication\ModularMonolith.Modules.Orders.QueryApplication.csproj" />
+  </ItemGroup>
+</Project>

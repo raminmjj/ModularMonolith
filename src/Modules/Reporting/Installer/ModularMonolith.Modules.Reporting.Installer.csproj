@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ModularMonolith.Modules.Reporting</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Application\ModularMonolith.Modules.Reporting.Application.csproj" />
+    <ProjectReference Include="..\Adapter\Outbound\ModularMonolith.Modules.Reporting.Adapter.Outbound.csproj" />
+    <ProjectReference Include="..\Adapter\Inbound\GraphQL\ModularMonolith.Modules.Reporting.Adapter.Inbound.GraphQL.csproj" />
+  </ItemGroup>
+</Project>

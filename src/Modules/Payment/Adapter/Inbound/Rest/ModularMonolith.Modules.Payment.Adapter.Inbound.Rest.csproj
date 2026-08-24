@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ModularMonolith.Modules.Payment.Adapter.Inbound.Rest</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Scrutor" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Application\ModularMonolith.Modules.Payment.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Framework\ModularMonolith.Framework.csproj" />
+    <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Contracts\ModularMonolith.Contracts.csproj" />
+    <!-- Same-module read side consumed by the driving adapter (avoids write-side duplication for GET). -->
+    <ProjectReference Include="..\..\..\QueryApplication\ModularMonolith.Modules.Payment.QueryApplication.csproj" />
+  </ItemGroup>
+</Project>

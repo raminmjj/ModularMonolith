@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ModularMonolith.Contracts</RootNamespace>
+    <Description>Cross-module contracts: shared DTOs and snapshots. NOT integration events — v3 uses transactional direct calls.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Framework\ModularMonolith.Framework.csproj" />
+  </ItemGroup>
+</Project>

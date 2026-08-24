@@ -1,0 +1,152 @@
+<Solution>
+  <Properties Name="ModularMonolith" />
+
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="nuget.config" />
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path=".dockerignore" />
+    <File Path="README.md" />
+    <File Path="Dockerfile" />
+    <File Path="docker-compose.yml" />
+  </Folder>
+
+  <Folder Name="/docs/">
+    <File Path="docs/ONBOARDING.md" />
+    <File Path="docs/DDD-GUIDELINES.md" />
+  </Folder>
+
+  <Folder Name="/src/" />
+  <Folder Name="/src/BuildingBlocks/" />
+  <Folder Name="/src/BuildingBlocks/Framework/">
+    <Project Path="src/BuildingBlocks/Framework/ModularMonolith.Framework.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/DDD/">
+    <Project Path="src/BuildingBlocks/DDD/ModularMonolith.DDD.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/SharedKernel/">
+    <Project Path="src/BuildingBlocks/SharedKernel/ModularMonolith.SharedKernel.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/Contracts/">
+    <Project Path="src/BuildingBlocks/Contracts/ModularMonolith.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/Infrastructure.Persistence/">
+    <Project Path="src/BuildingBlocks/Infrastructure.Persistence/ModularMonolith.Infrastructure.Persistence.csproj" />
+  </Folder>
+
+  <Folder Name="/src/Modules/Identity/" />
+  <Folder Name="/src/Modules/Identity/Application/">
+    <Project Path="src/Modules/Identity/Application/ModularMonolith.Modules.Identity.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Identity/Adapter/Outbound/">
+    <Project Path="src/Modules/Identity/Adapter/Outbound/ModularMonolith.Modules.Identity.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Identity/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Identity/Adapter/Inbound/Rest/ModularMonolith.Modules.Identity.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Identity/QueryApplication/">
+    <Project Path="src/Modules/Identity/QueryApplication/ModularMonolith.Modules.Identity.QueryApplication.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Identity/Installer/">
+    <Project Path="src/Modules/Identity/Installer/ModularMonolith.Modules.Identity.Installer.csproj" />
+  </Folder>
+
+  <Folder Name="/src/Modules/Catalog/" />
+  <Folder Name="/src/Modules/Catalog/Application/">
+    <Project Path="src/Modules/Catalog/Application/ModularMonolith.Modules.Catalog.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Catalog/Adapter/Outbound/">
+    <Project Path="src/Modules/Catalog/Adapter/Outbound/ModularMonolith.Modules.Catalog.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Catalog/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Catalog/Adapter/Inbound/Rest/ModularMonolith.Modules.Catalog.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Catalog/QueryApplication/">
+    <Project Path="src/Modules/Catalog/QueryApplication/ModularMonolith.Modules.Catalog.QueryApplication.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Catalog/Installer/">
+    <Project Path="src/Modules/Catalog/Installer/ModularMonolith.Modules.Catalog.Installer.csproj" />
+  </Folder>
+
+  <Folder Name="/src/Modules/Orders/" />
+  <Folder Name="/src/Modules/Orders/Application/">
+    <Project Path="src/Modules/Orders/Application/ModularMonolith.Modules.Orders.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Orders/Adapter/Outbound/">
+    <Project Path="src/Modules/Orders/Adapter/Outbound/ModularMonolith.Modules.Orders.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Orders/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Orders/Adapter/Inbound/Rest/ModularMonolith.Modules.Orders.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Orders/QueryApplication/">
+    <Project Path="src/Modules/Orders/QueryApplication/ModularMonolith.Modules.Orders.QueryApplication.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Orders/Installer/">
+    <Project Path="src/Modules/Orders/Installer/ModularMonolith.Modules.Orders.Installer.csproj" />
+  </Folder>
+
+
+  <Folder Name="/src/Modules/Customer/" />
+  <Folder Name="/src/Modules/Customer/Application/">
+    <Project Path="src/Modules/Customer/Application/ModularMonolith.Modules.Customer.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Customer/Adapter/Outbound/">
+    <Project Path="src/Modules/Customer/Adapter/Outbound/ModularMonolith.Modules.Customer.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Customer/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Customer/Adapter/Inbound/Rest/ModularMonolith.Modules.Customer.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Customer/QueryApplication/">
+    <Project Path="src/Modules/Customer/QueryApplication/ModularMonolith.Modules.Customer.QueryApplication.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Customer/Installer/">
+    <Project Path="src/Modules/Customer/Installer/ModularMonolith.Modules.Customer.Installer.csproj" />
+  </Folder>
+
+  <Folder Name="/src/Modules/Payment/" />
+  <Folder Name="/src/Modules/Payment/Application/">
+    <Project Path="src/Modules/Payment/Application/ModularMonolith.Modules.Payment.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Payment/Adapter/Outbound/">
+    <Project Path="src/Modules/Payment/Adapter/Outbound/ModularMonolith.Modules.Payment.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Payment/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Payment/Adapter/Inbound/Rest/ModularMonolith.Modules.Payment.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Payment/QueryApplication/">
+    <Project Path="src/Modules/Payment/QueryApplication/ModularMonolith.Modules.Payment.QueryApplication.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Payment/Installer/">
+    <Project Path="src/Modules/Payment/Installer/ModularMonolith.Modules.Payment.Installer.csproj" />
+  </Folder>
+
+  <Folder Name="/src/Modules/Reporting/" />
+  <Folder Name="/src/Modules/Reporting/Application/">
+    <Project Path="src/Modules/Reporting/Application/ModularMonolith.Modules.Reporting.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Reporting/Adapter/Outbound/">
+    <Project Path="src/Modules/Reporting/Adapter/Outbound/ModularMonolith.Modules.Reporting.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Reporting/Adapter/Inbound/GraphQL/">
+    <Project Path="src/Modules/Reporting/Adapter/Inbound/GraphQL/ModularMonolith.Modules.Reporting.Adapter.Inbound.GraphQL.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Reporting/Installer/">
+    <Project Path="src/Modules/Reporting/Installer/ModularMonolith.Modules.Reporting.Installer.csproj" />
+  </Folder>
+  <Folder Name="/src/Host/" />
+  <Folder Name="/src/Host/ModularMonolith.Host/">
+    <Project Path="src/Host/ModularMonolith.Host/ModularMonolith.Host.csproj" />
+  </Folder>
+
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/ArchitectureTests/">
+    <Project Path="tests/ArchitectureTests/ModularMonolith.ArchitectureTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/IntegrationTests/">
+    <Project Path="tests/IntegrationTests/ModularMonolith.IntegrationTests.csproj" />
+  </Folder>
+</Solution>

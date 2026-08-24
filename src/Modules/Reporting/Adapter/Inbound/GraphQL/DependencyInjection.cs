@@ -1,0 +1,34 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace ModularMonolith.Modules.Reporting.Adapter.Inbound.GraphQL;
+
+public static class DependencyInjection
+{
+    public static IServiceCollection AddReportingGraphQL(this IServiceCollection services)
+    {
+        services
+            .AddGraphQLServer("admin")
+            .AddQueryType<AdminReportQuery>()
+            .AddAuthorization(); // enables @authorize directive + [Authorize] on resolvers
+
+        return services;
+    }
+
+    /// <summary>
+    /// Maps the admin GraphQL endpoint. Defense in depth: the ASP.NET authorization
+    /// policy gates the ENDPOINT (blocks introspection for non-admins), and
+    /// [Authorize(Policy = "Admin")] additionally gates the FIELD.
+    /// Rate limiting via the named "reports" policy (configured in Host).
+    /// </summary>
+    public static IApplicationBuilder MapReportingEndpoints(this WebApplication app)
+    {
+        app.MapGraphQL("/api/v1/admin/reports/graphql")
+            .RequireAuthorization("Admin")
+            .RequireRateLimiting("reports");
+
+        app.MapGraphQLSchema("/api/v1/admin/reports/graphql/schema.gql");
+
+        return app;
+    }
+}

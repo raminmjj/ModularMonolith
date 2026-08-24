@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ModularMonolith.Modules.Catalog</RootNamespace>
+    <Description>Catalog module composition root. Host calls AddCatalogModule() — no knowledge of internal layers.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Application\ModularMonolith.Modules.Catalog.Application.csproj" />
+    <ProjectReference Include="..\Adapter\Outbound\ModularMonolith.Modules.Catalog.Adapter.Outbound.csproj" />
+    <ProjectReference Include="..\Adapter\Inbound\Rest\ModularMonolith.Modules.Catalog.Adapter.Inbound.Rest.csproj" />
+    <ProjectReference Include="..\QueryApplication\ModularMonolith.Modules.Catalog.QueryApplication.csproj" />
+  </ItemGroup>
+</Project>

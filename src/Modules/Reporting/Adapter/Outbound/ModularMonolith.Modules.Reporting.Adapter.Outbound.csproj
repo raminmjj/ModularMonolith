@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ModularMonolith.Modules.Reporting.Adapter.Outbound</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Application\ModularMonolith.Modules.Reporting.Application.csproj" />
+    <!--
+      EXCEPTION #3 (READ-side ACL): the only assemblies allowed to reference
+      Customer.QueryApplication / Payment.QueryApplication. Read composition
+      mirrors the write-side gateway pattern: provider read models cross the
+      boundary as Contracts DTOs via consumer-owned ports.
+      Enforced by Only_Reporting_Adapter_Outbound_May_Reference_Read_Sides.
+    -->
+    <ProjectReference Include="..\..\..\Customer\QueryApplication\ModularMonolith.Modules.Customer.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\..\Payment\QueryApplication\ModularMonolith.Modules.Payment.QueryApplication.csproj" />
+  </ItemGroup>
+</Project>

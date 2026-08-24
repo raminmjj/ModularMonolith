@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ModularMonolith.Modules.Catalog.QueryApplication</RootNamespace>
+    <Description>Catalog read side — lightweight queries without Hexagonal overhead.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Contracts\ModularMonolith.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Framework\ModularMonolith.Framework.csproj" />
+    <ProjectReference Include="..\Adapter\Outbound\ModularMonolith.Modules.Catalog.Adapter.Outbound.csproj" />
+  </ItemGroup>
+</Project>

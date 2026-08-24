@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ModularMonolith.Modules.Orders.Application</RootNamespace>
+    <Description>Orders hexagon: Domain + Ports + Service. References Catalog.Application for transactional ACL port only.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Riok.Mapperly" PrivateAssets="all" OutputItemType="analyzer" />
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\DDD\ModularMonolith.DDD.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\SharedKernel\ModularMonolith.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Contracts\ModularMonolith.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Framework\ModularMonolith.Framework.csproj" />
+    <!--
+      Orders.Application does NOT reference Catalog.Application — this preserves
+      module boundary. ICatalogGateway uses only Contracts types (ProductSnapshot,
+      ReservationSnapshot). The actual call to Catalog's IProductService happens
+      in Orders.Adapter.Outbound/Gateways/CatalogGateway.
+    -->
+  </ItemGroup>
+</Project>
