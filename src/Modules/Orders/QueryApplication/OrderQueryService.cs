@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ModularMonolith.Contracts.Orders;
-using ModularMonolith.Contracts.Reporting;
+using ModularMonolith.Contracts.Admin;
 using ModularMonolith.Framework.Results;
 using ModularMonolith.Modules.Orders.Application.Domain.Orders;
 using ModularMonolith.Modules.Orders.Application.Domain.ValueObjects;

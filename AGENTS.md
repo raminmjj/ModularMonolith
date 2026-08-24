@@ -4,7 +4,7 @@
 - **.NET 10** Modular Monolith with **Hexagonal-First** architecture (Ports & Adapters)
 - **No Wolverine, no message bus** — inter-module calls are **transactional direct method calls** via hexagonal ports
 - **CQRS separation**: `Application/` (write hexagon) + `QueryApplication/` (flat read side)
-- 6 modules: **Identity**, **Catalog**, **Orders**, **Customer** (provider), **Payment** (consumer), **Reporting** (read-only composition, ADR-0006)
+- 6 modules: **Identity**, **Catalog**, **Orders**, **Customer** (provider), **Payment** (consumer), **Admin** (composition + admin GraphQL, ADR-0006/0007)
 
 ## Structure (src/)
 
@@ -24,10 +24,11 @@ Modules/{Identity,Catalog,Orders,Customer,Payment}/
 ├── QueryApplication/       ← Read side (direct EF Core projections)
 └── Installer/              ← Composition Root (Add{Module}Module)
 
-Modules/Reporting/          ← Composition context (NO own DbContext, ADR-0006):
-   Application/ (ports + FailureReportService), Adapter/Outbound/ (read-side
-   ACL → Customer/Payment QueryApplications), Adapter/Inbound/GraphQL/
-   (HotChocolate admin endpoint), Installer/. Provably read-only.
+Modules/Admin/          ← Composition context (NO own DbContext, ADR-0006/0007):
+   Application/ (ports + FailureReportService + admin services), Adapter/
+   Outbound/ (read-side ACL → Customer/Payment/Orders QueryApplications +
+   write-side ACL gateways → provider inbound ports), Adapter/Inbound/GraphQL/
+   (HotChocolate admin endpoint), Installer/. Writes flow only via gateway ports.
 
 Host/ModularMonolith.Host/  ← Entry point (thin, only wires modules)
 ```
@@ -38,7 +39,7 @@ Host/ModularMonolith.Host/  ← Entry point (thin, only wires modules)
 2. **Application → EF Core**: Application must NOT depend on `Microsoft.EntityFrameworkCore`
 3. **Module isolation**: No module Application may reference another module's Application
    - **Exceptions**: `Orders.Adapter.Outbound` → `Catalog.Application`; `Payment.Adapter.Outbound` → `Customer.Application` (write-side ACL gateways)
-   - **Exception #3 (reads)**: `Reporting.Adapter.Outbound` → `Customer.QueryApplication`, `Payment.QueryApplication`, `Orders.QueryApplication` (ADR-0006)
+   - **Exception #3 (reads)**: `Admin.Adapter.Outbound` → `Customer.QueryApplication`, `Payment.QueryApplication`, `Orders.QueryApplication` (ADR-0006)
 4. **No Wolverine**: Any reference to `Wolverine` fails the build
 5. **Inbound/Outbound ports** must be interfaces; **Services** must be `sealed`
 5. **QueryApplication**: Read-only — no writes, no aggregate loading, no domain rules
@@ -150,8 +151,8 @@ query FailedPayments($f: FailureReportFilterInput!) {
 - **Adding Wolverine or event dispatching** — architecture tests will fail
 - **Committing JWT key or SA password to config** — use env vars / `.env` only
 - **Expecting auto-migrations on startup** — they don't happen; run `--migrate` explicitly
-- **Composing cross-module reads outside Reporting** — provider QueryApplications may only be consumed by `Reporting.Adapter.Outbound` (arch-tested)
-- **Adding a DbContext to Reporting** — it owns no data by design; composition goes through its outbound ports
+- **Composing cross-module reads outside Admin** — provider QueryApplications may only be consumed by `Admin.Adapter.Outbound` (arch-tested)
+- **Adding a DbContext to Admin** — it owns no data by design; composition goes through its outbound ports
 - **Summing report amounts across currencies** — the service throws rather than producing misleading totals
 - **Assuming cross-module calls are atomic** — they are a synchronous saga with compensation (`CrossModuleSaga`, ADR-0005); every step needs an idempotent compensation, and compensation failures are logged/metered, never swallowed
 - **Setting Guid keys on child entities without `ValueGeneratedNever()`** — see dotnet/efcore#27736; EF tracks new children as Modified and SaveChanges throws

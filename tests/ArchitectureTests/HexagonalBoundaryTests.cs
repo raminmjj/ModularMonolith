@@ -256,16 +256,16 @@ public class HexagonalBoundaryTests
 
 // ─── Reporting module (ADR-0006): dedicated cross-module READ composition context ───
 
-public class ReportingBoundaryTests
+public class AdminBoundaryTests
 {
     private static readonly string[] ModuleNames = ["Identity", "Catalog", "Orders", "Customer", "Payment"];
 
-    private static Assembly ReportingApp =>
-        typeof(ModularMonolith.Modules.Reporting.Application.DependencyInjection).Assembly;
-    private static Assembly ReportingOutbound =>
-        typeof(ModularMonolith.Modules.Reporting.Adapter.Outbound.DependencyInjection).Assembly;
-    private static Assembly ReportingGraphQL =>
-        typeof(ModularMonolith.Modules.Reporting.Adapter.Inbound.GraphQL.DependencyInjection).Assembly;
+    private static Assembly AdminApp =>
+        typeof(ModularMonolith.Modules.Admin.Application.DependencyInjection).Assembly;
+    private static Assembly AdminOutbound =>
+        typeof(ModularMonolith.Modules.Admin.Adapter.Outbound.DependencyInjection).Assembly;
+    private static Assembly AdminGraphQL =>
+        typeof(ModularMonolith.Modules.Admin.Adapter.Inbound.GraphQL.DependencyInjection).Assembly;
 
     /// <summary>
     /// ADR-0007 amendment: Reporting drives admin MUTATIONS, so the boundary moves
@@ -274,10 +274,10 @@ public class ReportingBoundaryTests
     /// inbound ports — same ACL pattern as exceptions #1/#2).
     /// </summary>
     [Fact]
-    public void Reporting_App_And_GraphQL_Must_Never_Reference_Write_Side_Applications()
+    public void Admin_App_And_GraphQL_Must_Never_Reference_Write_Side_Applications()
     {
         var forbidden = ModuleNames.Select(m => $"ModularMonolith.Modules.{m}.Application").ToArray();
-        foreach (var asm in new[] { ReportingApp, ReportingGraphQL })
+        foreach (var asm in new[] { AdminApp, AdminGraphQL })
         {
             var result = Types.InAssembly(asm)
                 .ShouldNot().HaveDependencyOnAny(forbidden)
@@ -289,7 +289,7 @@ public class ReportingBoundaryTests
 
     /// <summary>Only the outbound ACL adapter may see provider read sides — GraphQL and app layer stay blind.</summary>
     [Fact]
-    public void Only_Reporting_Adapter_Outbound_May_Reference_Read_Sides()
+    public void Only_Admin_Adapter_Outbound_May_Reference_Read_Sides()
     {
         var providerReadSides = new[]
         {
@@ -298,7 +298,7 @@ public class ReportingBoundaryTests
             "ModularMonolith.Modules.Orders.QueryApplication", // ADR-0006 amendment: last-order enrichment
         };
 
-        foreach (var asm in new[] { ReportingApp, ReportingGraphQL })
+        foreach (var asm in new[] { AdminApp, AdminGraphQL })
         foreach (var providerReadSide in providerReadSides)
         {
             var result = Types.InAssembly(asm)
@@ -314,7 +314,7 @@ public class ReportingBoundaryTests
     public void Reporting_Must_Not_Depend_On_Provider_Adapters()
     {
         foreach (var m in ModuleNames)
-        foreach (var asm in new[] { ReportingApp, ReportingOutbound, ReportingGraphQL })
+        foreach (var asm in new[] { AdminApp, AdminOutbound, AdminGraphQL })
         {
             var result = Types.InAssembly(asm)
                 .ShouldNot().HaveDependencyOn($"ModularMonolith.Modules.{m}.Adapter")
@@ -327,7 +327,7 @@ public class ReportingBoundaryTests
     [Fact]
     public void Reporting_Must_Not_Depend_On_EntityFrameworkCore()
     {
-        foreach (var asm in new[] { ReportingApp, ReportingOutbound, ReportingGraphQL })
+        foreach (var asm in new[] { AdminApp, AdminOutbound, AdminGraphQL })
         {
             var result = Types.InAssembly(asm)
                 .ShouldNot().HaveDependencyOn("Microsoft.EntityFrameworkCore")

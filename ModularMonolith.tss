@@ -31,5 +31,32 @@
     <ArrayOfString>
       <string>E:\Temp\modular-monolith-v3\src\Modules\Payment\Adapter\Outbound\Gateways\CustomerGateway.cs</string>
     </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\BuildingBlocks\DDD\Common\ValueObject.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\BuildingBlocks\SharedKernel\ValueObjects\Money.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\BuildingBlocks\DDD\Common\Entity.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\Modules\Catalog\Installer\ModuleInstaller.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\Modules\Catalog\Application\Service\ProductService.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\Modules\Catalog\Adapter\Inbound\Rest\Endpoints\CatalogEndpoints.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\Modules\Customer\Adapter\Outbound\Repositories\CustomerRepository.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\Modules\Customer\Adapter\Outbound\DependencyInjection.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\Modules\Catalog\Application\Ports\Inbound\IProductService.cs</string>
+    </ArrayOfString>
   </ArrayOfArrayOfString>
 </ArrayOfArrayOfArrayOfString>

@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ModularMonolith.Contracts.Payment;
-using ModularMonolith.Contracts.Reporting;
+using ModularMonolith.Contracts.Admin;
 using ModularMonolith.Framework.Results;
 using ModularMonolith.Modules.Payment.Application.Domain.Payments;
 
@@ -14,7 +14,7 @@ public interface IPaymentQueryService
 
     /// <summary>
     /// Flat failed-payment rows for cross-module report composition (single SQL).
-    /// No grouping/paging here — the Reporting module owns composition.
+    /// No grouping/paging here — the Admin module owns composition.
     /// </summary>
     Task<IReadOnlyList<FailedPaymentDto>> GetFailedPaymentsAsync(
         DateTimeOffset? from, DateTimeOffset? to, decimal? minAmount, CancellationToken ct = default);

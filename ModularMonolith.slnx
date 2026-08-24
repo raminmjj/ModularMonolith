@@ -124,18 +124,18 @@
     <Project Path="src/Modules/Payment/Installer/ModularMonolith.Modules.Payment.Installer.csproj" />
   </Folder>
 
-  <Folder Name="/src/Modules/Reporting/" />
-  <Folder Name="/src/Modules/Reporting/Application/">
-    <Project Path="src/Modules/Reporting/Application/ModularMonolith.Modules.Reporting.Application.csproj" />
+  <Folder Name="/src/Modules/Admin/" />
+  <Folder Name="/src/Modules/Admin/Application/">
+    <Project Path="src/Modules/Admin/Application/ModularMonolith.Modules.Admin.Application.csproj" />
   </Folder>
-  <Folder Name="/src/Modules/Reporting/Adapter/Outbound/">
-    <Project Path="src/Modules/Reporting/Adapter/Outbound/ModularMonolith.Modules.Reporting.Adapter.Outbound.csproj" />
+  <Folder Name="/src/Modules/Admin/Adapter/Outbound/">
+    <Project Path="src/Modules/Admin/Adapter/Outbound/ModularMonolith.Modules.Admin.Adapter.Outbound.csproj" />
   </Folder>
-  <Folder Name="/src/Modules/Reporting/Adapter/Inbound/GraphQL/">
-    <Project Path="src/Modules/Reporting/Adapter/Inbound/GraphQL/ModularMonolith.Modules.Reporting.Adapter.Inbound.GraphQL.csproj" />
+  <Folder Name="/src/Modules/Admin/Adapter/Inbound/GraphQL/">
+    <Project Path="src/Modules/Admin/Adapter/Inbound/GraphQL/ModularMonolith.Modules.Admin.Adapter.Inbound.GraphQL.csproj" />
   </Folder>
-  <Folder Name="/src/Modules/Reporting/Installer/">
-    <Project Path="src/Modules/Reporting/Installer/ModularMonolith.Modules.Reporting.Installer.csproj" />
+  <Folder Name="/src/Modules/Admin/Installer/">
+    <Project Path="src/Modules/Admin/Installer/ModularMonolith.Modules.Admin.Installer.csproj" />
   </Folder>
   <Folder Name="/src/Host/" />
   <Folder Name="/src/Host/ModularMonolith.Host/">

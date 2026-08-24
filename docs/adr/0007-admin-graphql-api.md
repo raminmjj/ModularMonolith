@@ -1,7 +1,10 @@
 # ADR-0007: Admin GraphQL API — Reporting as the Admin BFF
 
 ## Status
-Accepted — 2026-08-24
+Accepted — 2026-08-24 · **Amended: module renamed `Reporting` → `Admin` (2026-08-24)** —
+after absorbing mutations, "Reporting" implied read-only and misled. Namespaces
+(`Modules.Admin.*`, `Contracts.Admin.*`), DI methods (`AddAdminModule`), and the arch
+rules were renamed with it; ADR-0006 references to "Reporting" are historical.
 
 ## Context
 The admin panel needs a single API covering catalog management, customer management,

@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ModularMonolith.Contracts.Catalog;
-using ModularMonolith.Contracts.Reporting;
+using ModularMonolith.Contracts.Admin;
 using ModularMonolith.Framework.Results;
 using ModularMonolith.Modules.Catalog.Application.Domain.Products;
 

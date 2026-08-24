@@ -25,6 +25,6 @@
     <ProjectReference Include="..\..\Modules\Orders\Installer\ModularMonolith.Modules.Orders.Installer.csproj" />
     <ProjectReference Include="..\..\Modules\Customer\Installer\ModularMonolith.Modules.Customer.Installer.csproj" />
     <ProjectReference Include="..\..\Modules\Payment\Installer\ModularMonolith.Modules.Payment.Installer.csproj" />
-    <ProjectReference Include="..\..\Modules\Reporting\Installer\ModularMonolith.Modules.Reporting.Installer.csproj" />
+    <ProjectReference Include="..\..\Modules\Admin\Installer\ModularMonolith.Modules.Admin.Installer.csproj" />
   </ItemGroup>
 </Project>

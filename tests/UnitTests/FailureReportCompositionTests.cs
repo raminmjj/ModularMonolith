@@ -2,10 +2,10 @@ using Xunit;
 using AwesomeAssertions;
 using Microsoft.Extensions.Caching.Memory;
 using ModularMonolith.Contracts.Customer;
-using ModularMonolith.Contracts.Reporting;
+using ModularMonolith.Contracts.Admin;
 using ModularMonolith.Framework.Results;
-using ModularMonolith.Modules.Reporting.Application.Ports.Outbound;
-using ModularMonolith.Modules.Reporting.Application.Service;
+using ModularMonolith.Modules.Admin.Application.Ports.Outbound;
+using ModularMonolith.Modules.Admin.Application.Service;
 using NSubstitute;
 
 namespace ModularMonolith.UnitTests;

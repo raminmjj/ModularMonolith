@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ModularMonolith.Modules.Admin</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Application\ModularMonolith.Modules.Admin.Application.csproj" />
+    <ProjectReference Include="..\Adapter\Outbound\ModularMonolith.Modules.Admin.Adapter.Outbound.csproj" />
+    <ProjectReference Include="..\Adapter\Inbound\GraphQL\ModularMonolith.Modules.Admin.Adapter.Inbound.GraphQL.csproj" />
+  </ItemGroup>
+</Project>

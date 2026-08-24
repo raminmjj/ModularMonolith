@@ -11,8 +11,8 @@ using ModularMonolith.Modules.Customer.Adapter.Outbound.Repositories.SqlServer;
 using ModularMonolith.Modules.Payment;
 using ModularMonolith.Modules.Payment.Adapter.Inbound.Rest.Endpoints;
 using ModularMonolith.Modules.Payment.Adapter.Outbound.Repositories.SqlServer;
-using ModularMonolith.Modules.Reporting;
-using ModularMonolith.Modules.Reporting.Adapter.Inbound.GraphQL;
+using ModularMonolith.Modules.Admin;
+using ModularMonolith.Modules.Admin.Adapter.Inbound.GraphQL;
 using ModularMonolith.Modules.Catalog.Adapter.Inbound.Rest.Endpoints;
 using ModularMonolith.Modules.Catalog.Adapter.Outbound.Repositories.SqlServer;
 using ModularMonolith.Modules.Identity;
@@ -47,7 +47,7 @@ builder.Services
     .AddOrdersModule(builder.Configuration, builder.Environment.IsDevelopment())
     .AddCustomerModule(builder.Configuration, builder.Environment.IsDevelopment()) // provider BEFORE consumer
     .AddPaymentModule(builder.Configuration, builder.Environment.IsDevelopment()) // consumer resolves ICustomerInboundPort
-    .AddReportingModule(builder.Configuration); // read-only composition over provider QueryApplications
+    .AddAdminModule(builder.Configuration); // admin composition: reads + writes via ACL gateways (ADR-0007)
 
 // ---- JWT Auth ----
 var jwtSection = builder.Configuration.GetSection(JwtOptions.SectionName);
@@ -213,7 +213,7 @@ app.MapRestEndpoints(); // Catalog
 app.MapOrdersRestEndpoints();
 app.MapCustomerRestEndpoints();
 app.MapPaymentsRestEndpoints();
-app.MapReportingEndpoints();
+app.MapAdminEndpoints();
 
 app.MapHealthChecks("/health");
 
