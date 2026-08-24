@@ -8,7 +8,7 @@
 
 ۱. **Hexagonal-First**: هر ماژول از داخل به بیرون به‌صورت Ports & Adapters طراحی شده — نه به‌صورت لایه‌های افقی.
 ۲. **Transactional Inter-Module**: ماژول‌ها به‌صورت همزمان و transactional با هم صحبت می‌کنند — بدون Event، بدون Wolverine، بدون eventual consistency.
-۳. **CQRS Separation**: سمت خواندن (QueryApplication) از Hexagon جدا است تا overhead آن روی read-heavy operations اعمال نشود.
+۳. **Read-optimized CQS (CQS+) Separation**: سمت خواندن (QueryApplication) از Hexagon جدا است تا overhead آن روی read-heavy operations اعمال نشود.
 
 ### نقشه معماری
 
@@ -51,7 +51,7 @@
 │   └── Outbound/             ← Driven adapters (implements Outbound ports)
 │       ├── Repositories/     ← EF Core DbContext + Repository
 │       └── Gateways/         ← Cross-module ACL adapters
-├── QueryApplication/         ← Read side (CQRS — flat, no hexagon)
+├── QueryApplication/         ← Read side (Read-optimized CQS (CQS+) — flat, no hexagon)
 └── Installer/                ← Composition Root (Add{Module}Module)
 ```
 
@@ -115,9 +115,10 @@ Host فقط `Add{Module}Module()` را صدا می‌زند — هیچ‌چیز 
 ج: چون ارتباط بین ماژول‌ها transactional است، نه event-based. Wolverine برای event publishing و outbox بود که دیگر نیاز نیست.
 
 **س: چرا QueryApplication جدا است؟**
-ج: چون Hexagonal overhead (ports, aggregate loading) برای read-heavy operations مناسب نیست. CQRS separation این مشکل را حل می‌کند.
+ج: چون Hexagonal overhead (ports, aggregate loading) برای read-heavy operations مناسب نیست. Read-optimized CQS (CQS+) separation این مشکل را حل می‌کند.
 
 **س: چگونه یک ماژول را به microservice تبدیل کنم؟**
 ج: فقط `Adapter/Outbound/Gateways/CatalogGateway` را با HTTP client جایگزین کنید — Application دست‌نخورده می‌ماند.
 
 خوش آمدید! 🚀
+

@@ -10,7 +10,7 @@ namespace ModularMonolith.Modules.Catalog.QueryApplication;
 /// <summary>
 /// Read-side query service. Deliberately OUTSIDE the hexagon — no aggregate
 /// loading, no domain rules, no ports. Just direct EF Core projections for
-/// maximum performance. CQRS separation: write side = Hexagonal, read side = flat.
+/// maximum performance. Read-optimized CQS (ADR-0008): write side = Hexagonal, read side = flat projections.
 /// </summary>
 public interface IProductQueryService
 {

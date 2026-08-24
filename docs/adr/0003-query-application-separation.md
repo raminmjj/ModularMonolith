@@ -1,4 +1,9 @@
-# ADR-0003: QueryApplication Separation (CQRS)
+# ADR-0003: QueryApplication Separation (Read-Optimized CQS)
+
+> **Terminology note (2026-08-24):** originally titled with "(CQRS)". Renamed per
+> [ADR-0008](0008-read-optimized-cqs-terminology.md) — this architecture is CQS with
+> physical read/write separation, not full CQRS (no separate stores, no event-driven
+> propagation). The separation decision itself stands unchanged.
 
 ## Status
 Accepted — 2026-08-07
@@ -14,4 +19,4 @@ Hexagonal architecture imposes overhead on read operations: aggregate loading, d
 ## Consequences
 - Read operations are fast (no aggregate overhead)
 - Write operations are protected by hexagonal boundaries
-- Clear CQRS separation without infrastructure complexity
+- Clear read/write separation without infrastructure complexity (terminology: ADR-0008)

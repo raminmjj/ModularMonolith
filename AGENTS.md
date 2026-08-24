@@ -3,7 +3,7 @@
 ## Project Overview
 - **.NET 10** Modular Monolith with **Hexagonal-First** architecture (Ports & Adapters)
 - **No Wolverine, no message bus** — inter-module calls are **transactional direct method calls** via hexagonal ports
-- **CQRS separation**: `Application/` (write hexagon) + `QueryApplication/` (flat read side)
+- **Read-optimized CQS (CQS+, ADR-0008)**: `Application/` (write hexagon) + `QueryApplication/` (flat read side — same DB, synchronous projections, no event propagation)
 - 6 modules: **Identity**, **Catalog**, **Orders**, **Customer** (provider), **Payment** (consumer), **Admin** (composition + admin GraphQL, ADR-0006/0007)
 
 ## Structure (src/)
@@ -164,3 +164,4 @@ query FailedPayments($f: FailureReportFilterInput!) {
 - `docs/DDD-GUIDELINES.md` — DDD best practices for this codebase
 - `docs/adr/` — Architecture Decision Records (5 ADRs)
 - `tests/ArchitectureTests/HexagonalBoundaryTests.cs` — executable rules
+
