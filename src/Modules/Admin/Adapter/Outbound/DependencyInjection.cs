@@ -26,6 +26,10 @@ public static class DependencyInjection
         services.AddScoped<Application.Ports.Outbound.ICustomerAdminGateway, CustomerAdminGateway>();
         services.AddScoped<Application.Ports.Outbound.IOrdersAdminGateway, OrdersAdminGateway>();
         services.AddScoped<Application.Ports.Outbound.IPaymentAdminGateway, PaymentAdminGateway>();
+        services.AddScoped<Application.Ports.Outbound.ISupplierAdminGateway, SuppliersAdminGateway>();
+        services.AddScoped<Application.Ports.Outbound.IBrandAdminGateway, BrandsAdminGateway>();
+        services.AddScoped<Application.Ports.Outbound.ISupplierReadDataProvider, SuppliersReadDataProvider>();
+        services.AddScoped<Application.Ports.Outbound.IBrandReadDataProvider, BrandsReadDataProvider>();
         return services;
     }
 }

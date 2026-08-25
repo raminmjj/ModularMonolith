@@ -465,6 +465,69 @@ public class EndToEndTests : IClassFixture<WebApplicationFactory<Program>>
             .Should().Contain("orders");
     }
 
+    [Fact]
+    public async Task AdminPanel_Supplier_Brand_GraphQL_Flow_Should_Work()
+    {
+        // 0. Admin seed + login (all admin GraphQL is policy-gated).
+        var adminEmail = $"admin{Guid.NewGuid():N}@example.com";
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
+            var hasher = scope.ServiceProvider.GetRequiredService<ModularMonolith.Modules.Identity.Application.Domain.Users.IPasswordHasher>();
+            var hash = hasher.Hash("StrongPass123!");
+            db.Users.Add(ModularMonolith.Modules.Identity.Application.Domain.Users.User.Register(
+                ModularMonolith.SharedKernel.ValueObjects.Email.Create(adminEmail),
+                ModularMonolith.Modules.Identity.Application.Domain.ValueObjects.HashedPassword.Create(hash.Hash, hash.Salt),
+                "Admin", ["Admin"]));
+            db.SaveChanges();
+        }
+        await LoginAsync(adminEmail, "StrongPass123!");
+
+        // 1. Create a brand via mutation → starts PendingReview.
+        var createBrandRaw = await GraphQlRaw("""
+            mutation { createBrand(name:"Acme" countryOfOrigin:"de") }
+            """);
+        var brandId = System.Text.Json.JsonDocument.Parse(createBrandRaw)
+            .RootElement.GetProperty("data").GetProperty("createBrand").GetGuid();
+        brandId.Should().NotBeEmpty();
+
+        // 2. Approve it.
+        (await GraphQlRaw($"mutation {{ approveBrand(brandId:\"{brandId}\") }}"))
+            .Should().Contain("\"approveBrand\":true");
+
+        // 3. Create a supplier via REST (public port), then VERIFY via mutation.
+        var supResp = await _client.PostAsJsonAsync("/api/v1/suppliers",
+            new { name = "Acme Supply Co", contactEmail = $"supply{Guid.NewGuid():N}@acme.test", phoneNumber = "+123456789", address = "Main St 1" });
+        supResp.EnsureSuccessStatusCode();
+        var supplierId = (await supResp.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>())
+            .GetProperty("id").GetGuid();
+
+        (await GraphQlRaw($"mutation {{ verifySupplier(supplierId:\"{supplierId}\") }}"))
+            .Should().Contain("\"verifySupplier\":true");
+
+        // 4. Assign the brand to the verified supplier with a commission rate.
+        (await GraphQlRaw($"mutation {{ assignBrandToSupplier(supplierId:\"{supplierId}\" brandId:\"{brandId}\" commissionRate:12.5) }}"))
+            .Should().Contain("\"assignBrandToSupplier\":true");
+
+        // 5. Query the agreement rows owned by the Supplier aggregate.
+        var agreementsRaw = await GraphQlRaw($"{{ supplierAgreements(supplierId:\"{supplierId}\") {{ brandId commissionRate isActive }} }}");
+        agreementsRaw.Should().Contain($"\"brandId\":\"{brandId}\"");
+        agreementsRaw.Should().Contain("\"commissionRate\":12.5");
+        agreementsRaw.Should().Contain("\"isActive\":true");
+
+        // 6. List queries see both entities.
+        (await GraphQlRaw("{ brands(page:1, pageSize:20) { id slug status } }"))
+            .Should().Contain("acme");
+        (await GraphQlRaw("{ suppliers(page:1, pageSize:20) { id name status isVerified } }"))
+            .Should().Contain("Acme Supply Co");
+
+        // 7. Remove the agreement again — row deactivates (history preserved).
+        (await GraphQlRaw($"mutation {{ removeBrandFromSupplier(supplierId:\"{supplierId}\" brandId:\"{brandId}\") }}"))
+            .Should().Contain("\"removeBrandFromSupplier\":true");
+        var afterRemove = await GraphQlRaw($"{{ supplierAgreements(supplierId:\"{supplierId}\") {{ brandId isActive }} }}");
+        afterRemove.Should().Contain("\"isActive\":false");
+    }
+
     private async Task<string> GraphQlRaw(string query)
     {
         var resp = await _client.PostAsJsonAsync("/api/v1/admin/reports/graphql", new { query });

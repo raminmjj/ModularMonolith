@@ -32,3 +32,23 @@ public interface IPaymentAdminGateway
     Task<Result> FailAsync(Guid paymentId, string reason, CancellationToken ct = default);
     Task<Result> RefundAsync(Guid paymentId, CancellationToken ct = default);
 }
+
+/// <summary>Mirrors Supplier.ICatalogAdminService-style admin port (ADR-0009).</summary>
+public interface ISupplierAdminGateway
+{
+    Task<Result> VerifyAsync(Guid supplierId, CancellationToken ct = default);
+    Task<Result> SuspendAsync(Guid supplierId, CancellationToken ct = default);
+    Task<Result> UpdateAsync(Guid supplierId, string name, string? phoneNumber, string? address, CancellationToken ct = default);
+    /// <summary>Cross-module guard (brand existence) is enforced INSIDE the Supplier module.</summary>
+    Task<Result> AssignBrandAsync(Guid supplierId, Guid brandId, decimal commissionRate, CancellationToken ct = default);
+    Task<Result> RemoveBrandAsync(Guid supplierId, Guid brandId, CancellationToken ct = default);
+}
+
+/// <summary>Mirrors Brand.IBrandAdminService (ADR-0009).</summary>
+public interface IBrandAdminGateway
+{
+    Task<Result<Guid>> CreateBrandAsync(string name, string? slug, string? description, string? logoUrl, string countryOfOrigin, CancellationToken ct = default);
+    Task<Result> ApproveBrandAsync(Guid brandId, CancellationToken ct = default);
+    Task<Result> RejectBrandAsync(Guid brandId, string reason, CancellationToken ct = default);
+    Task<Result> UpdateBrandDetailsAsync(Guid brandId, string name, string? description, string? logoUrl, string countryOfOrigin, CancellationToken ct = default);
+}

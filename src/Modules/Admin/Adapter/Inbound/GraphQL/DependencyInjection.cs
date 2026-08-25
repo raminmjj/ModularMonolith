@@ -21,6 +21,10 @@ public static class DependencyInjection
             .AddTypeExtension<AdminCustomerMutations>()
             .AddTypeExtension<AdminOrderMutations>()
             .AddTypeExtension<AdminPaymentMutations>()
+            .AddTypeExtension<AdminSupplierQueries>()
+            .AddTypeExtension<AdminSupplierMutations>()
+            .AddTypeExtension<AdminBrandQueries>()
+            .AddTypeExtension<AdminBrandMutations>()
             .AddAuthorization() // enables @authorize directive + [Authorize] on resolvers
             .AddMaxExecutionDepthRule(10); // guard against runaway nested queries
 
