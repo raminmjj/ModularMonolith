@@ -19,9 +19,8 @@
     <ProjectReference Include="..\..\src\Modules\Orders\Application\ModularMonolith.Modules.Orders.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\Customer\Application\ModularMonolith.Modules.Customer.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\Payment\Application\ModularMonolith.Modules.Payment.Application.csproj" />
-    <ProjectReference Include="..\..\src\Modules\Orders\QueryApplication\ModularMonolith.Modules.Orders.QueryApplication.csproj" />
-    <ProjectReference Include="..\..\src\Modules\Customer\QueryApplication\ModularMonolith.Modules.Customer.QueryApplication.csproj" />
-    <ProjectReference Include="..\..\src\Modules\Payment\QueryApplication\ModularMonolith.Modules.Payment.QueryApplication.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Supplier\Application\ModularMonolith.Modules.Supplier.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Brand\Application\ModularMonolith.Modules.Brand.Application.csproj" />
     <ProjectReference Include="..\..\src\Modules\Admin\Application\ModularMonolith.Modules.Admin.Application.csproj" />
   </ItemGroup>
 </Project>

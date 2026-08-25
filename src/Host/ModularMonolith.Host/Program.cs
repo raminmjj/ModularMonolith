@@ -11,7 +11,13 @@ using ModularMonolith.Modules.Customer.Adapter.Outbound.Repositories.SqlServer;
 using ModularMonolith.Modules.Payment;
 using ModularMonolith.Modules.Payment.Adapter.Inbound.Rest.Endpoints;
 using ModularMonolith.Modules.Payment.Adapter.Outbound.Repositories.SqlServer;
+using ModularMonolith.Modules.Supplier.Adapter.Outbound.Repositories.SqlServer;
+using ModularMonolith.Modules.Brand.Adapter.Outbound.Repositories.SqlServer;
 using ModularMonolith.Modules.Admin;
+using ModularMonolith.Modules.Brand;
+using ModularMonolith.Modules.Brand.Adapter.Inbound.Rest.Endpoints;
+using ModularMonolith.Modules.Supplier;
+using ModularMonolith.Modules.Supplier.Adapter.Inbound.Rest.Endpoints;
 using ModularMonolith.Modules.Admin.Adapter.Inbound.GraphQL;
 using ModularMonolith.Modules.Catalog.Adapter.Inbound.Rest.Endpoints;
 using ModularMonolith.Modules.Catalog.Adapter.Outbound.Repositories.SqlServer;
@@ -47,7 +53,9 @@ builder.Services
     .AddOrdersModule(builder.Configuration, builder.Environment.IsDevelopment())
     .AddCustomerModule(builder.Configuration, builder.Environment.IsDevelopment()) // provider BEFORE consumer
     .AddPaymentModule(builder.Configuration, builder.Environment.IsDevelopment()) // consumer resolves ICustomerInboundPort
-    .AddAdminModule(builder.Configuration); // admin composition: reads + writes via ACL gateways (ADR-0007)
+    .AddAdminModule(builder.Configuration)
+    .AddSupplierModule(builder.Configuration, builder.Environment.IsDevelopment())
+    .AddBrandModule(builder.Configuration, builder.Environment.IsDevelopment()); // admin composition: reads + writes via ACL gateways (ADR-0007)
 
 // ---- JWT Auth ----
 var jwtSection = builder.Configuration.GetSection(JwtOptions.SectionName);
@@ -141,7 +149,9 @@ builder.Services.AddHealthChecks()
     .AddDbContextCheck<CatalogDbContext>("Catalog DB")
     .AddDbContextCheck<OrdersDbContext>("Orders DB")
     .AddDbContextCheck<CustomerDbContext>("Customer DB")
-    .AddDbContextCheck<PaymentDbContext>("Payment DB");
+    .AddDbContextCheck<PaymentDbContext>("Payment DB")
+    .AddDbContextCheck<SupplierDbContext>("Supplier DB")
+    .AddDbContextCheck<BrandDbContext>("Brand DB");
 
 // ---- OpenTelemetry ----
 builder.Services.AddOpenTelemetry()
@@ -178,6 +188,8 @@ if (args.Contains("--migrate"))
         scope.ServiceProvider.GetRequiredService<OrdersDbContext>(),
         scope.ServiceProvider.GetRequiredService<CustomerDbContext>(),
         scope.ServiceProvider.GetRequiredService<PaymentDbContext>(),
+        scope.ServiceProvider.GetRequiredService<SupplierDbContext>(),
+        scope.ServiceProvider.GetRequiredService<BrandDbContext>(),
     ];
 
     foreach (var db in contexts)
@@ -221,6 +233,8 @@ app.MapOrdersRestEndpoints();
 app.MapCustomerRestEndpoints();
 app.MapPaymentsRestEndpoints();
 app.MapAdminEndpoints();
+app.MapSupplierRestEndpoints();
+app.MapBrandRestEndpoints();
 
 app.MapHealthChecks("/health");
 

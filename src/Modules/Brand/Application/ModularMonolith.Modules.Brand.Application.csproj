@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ModularMonolith.Modules.Brand.Application</RootNamespace>
+    <Description>Brand hexagon: brand identity + approval lifecycle. No relationship ownership (ADR-0009).</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\DDD\ModularMonolith.DDD.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Contracts\ModularMonolith.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Framework\ModularMonolith.Framework.csproj" />
+  </ItemGroup>
+</Project>

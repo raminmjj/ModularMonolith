@@ -13,7 +13,7 @@ public class HexagonalBoundaryTests
 {
     private static readonly string[] ModuleNames =
     [
-        "Identity", "Catalog", "Orders", "Customer", "Payment",
+        "Identity", "Catalog", "Orders", "Customer", "Payment", "Supplier", "Brand",
     ];
 
     private static Assembly AppAssembly(string m) => m switch
@@ -23,6 +23,8 @@ public class HexagonalBoundaryTests
         "Orders" => typeof(ModularMonolith.Modules.Orders.Application.DependencyInjection).Assembly,
         "Customer" => typeof(ModularMonolith.Modules.Customer.Application.DependencyInjection).Assembly,
         "Payment" => typeof(ModularMonolith.Modules.Payment.Application.DependencyInjection).Assembly,
+        "Supplier" => typeof(ModularMonolith.Modules.Supplier.Application.DependencyInjection).Assembly,
+        "Brand" => typeof(ModularMonolith.Modules.Brand.Application.DependencyInjection).Assembly,
         _ => throw new ArgumentOutOfRangeException(nameof(m)),
     };
 
@@ -33,6 +35,8 @@ public class HexagonalBoundaryTests
         "Orders" => typeof(ModularMonolith.Modules.Orders.Adapter.Outbound.DependencyInjection).Assembly,
         "Customer" => typeof(ModularMonolith.Modules.Customer.Adapter.Outbound.DependencyInjection).Assembly,
         "Payment" => typeof(ModularMonolith.Modules.Payment.Adapter.Outbound.DependencyInjection).Assembly,
+        "Supplier" => typeof(ModularMonolith.Modules.Supplier.Adapter.Outbound.DependencyInjection).Assembly,
+        "Brand" => typeof(ModularMonolith.Modules.Brand.Adapter.Outbound.DependencyInjection).Assembly,
         _ => throw new ArgumentOutOfRangeException(nameof(m)),
     };
 
@@ -43,6 +47,8 @@ public class HexagonalBoundaryTests
         "Orders" => typeof(ModularMonolith.Modules.Orders.Adapter.Inbound.Rest.Endpoints.IEndpoint).Assembly,
         "Customer" => typeof(ModularMonolith.Modules.Customer.Adapter.Inbound.Rest.Endpoints.IEndpoint).Assembly,
         "Payment" => typeof(ModularMonolith.Modules.Payment.Adapter.Inbound.Rest.Endpoints.IEndpoint).Assembly,
+        "Supplier" => typeof(ModularMonolith.Modules.Supplier.Adapter.Inbound.Rest.Endpoints.IEndpoint).Assembly,
+        "Brand" => typeof(ModularMonolith.Modules.Brand.Adapter.Inbound.Rest.Endpoints.IEndpoint).Assembly,
         _ => throw new ArgumentOutOfRangeException(nameof(m)),
     };
 
@@ -53,6 +59,8 @@ public class HexagonalBoundaryTests
         "Orders" => typeof(ModularMonolith.Modules.Orders.QueryApplication.DependencyInjection).Assembly,
         "Customer" => typeof(ModularMonolith.Modules.Customer.QueryApplication.DependencyInjection).Assembly,
         "Payment" => typeof(ModularMonolith.Modules.Payment.QueryApplication.DependencyInjection).Assembly,
+        "Supplier" => typeof(ModularMonolith.Modules.Supplier.QueryApplication.DependencyInjection).Assembly,
+        "Brand" => typeof(ModularMonolith.Modules.Brand.QueryApplication.DependencyInjection).Assembly,
         _ => throw new ArgumentOutOfRangeException(nameof(m)),
     };
 
@@ -258,7 +266,7 @@ public class HexagonalBoundaryTests
 
 public class AdminBoundaryTests
 {
-    private static readonly string[] ModuleNames = ["Identity", "Catalog", "Orders", "Customer", "Payment"];
+    private static readonly string[] ModuleNames = ["Identity", "Catalog", "Orders", "Customer", "Payment", "Supplier", "Brand"];
 
     private static Assembly AdminApp =>
         typeof(ModularMonolith.Modules.Admin.Application.DependencyInjection).Assembly;

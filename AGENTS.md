@@ -4,7 +4,7 @@
 - **.NET 10** Modular Monolith with **Hexagonal-First** architecture (Ports & Adapters)
 - **No Wolverine, no message bus** — inter-module calls are **transactional direct method calls** via hexagonal ports
 - **Read-optimized CQS (CQS+, ADR-0008)**: `Application/` (write hexagon) + `QueryApplication/` (flat read side — same DB, synchronous projections, no event propagation)
-- 6 modules: **Identity**, **Catalog**, **Orders**, **Customer** (provider), **Payment** (consumer), **Admin** (composition + admin GraphQL, ADR-0006/0007)
+- 8 modules: **Identity**, **Catalog**, **Orders**, **Customer** (provider), **Payment** (consumer), **Supplier** (owns BrandSupplyAgreement M2M, ADR-0009), **Brand** (identity/approval lifecycle), **Admin** (composition + admin GraphQL, ADR-0006/0007)
 
 ## Structure (src/)
 
@@ -40,6 +40,7 @@ Host/ModularMonolith.Host/  ← Entry point (thin, only wires modules)
 3. **Module isolation**: No module Application may reference another module's Application
    - **Exceptions**: `Orders.Adapter.Outbound` → `Catalog.Application`; `Payment.Adapter.Outbound` → `Customer.Application` (write-side ACL gateways)
    - **Exception #3 (reads)**: `Admin.Adapter.Outbound` → `Customer.QueryApplication`, `Payment.QueryApplication`, `Orders.QueryApplication` (ADR-0006)
+   - **Exception #5**: `Supplier.Adapter.Outbound` → `Brand.Application` — brand existence check before agreement mutations (ADR-0009); Brand never references Supplier
 4. **No Wolverine**: Any reference to `Wolverine` fails the build
 5. **Inbound/Outbound ports** must be interfaces; **Services** must be `sealed`
 5. **QueryApplication**: Read-only — no writes, no aggregate loading, no domain rules

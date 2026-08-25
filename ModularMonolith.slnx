@@ -137,6 +137,40 @@
   <Folder Name="/src/Modules/Admin/Installer/">
     <Project Path="src/Modules/Admin/Installer/ModularMonolith.Modules.Admin.Installer.csproj" />
   </Folder>
+
+  <Folder Name="/src/Modules/Supplier/" />
+  <Folder Name="/src/Modules/Supplier/Application/">
+    <Project Path="src/Modules/Supplier/Application/ModularMonolith.Modules.Supplier.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Supplier/Adapter/Outbound/">
+    <Project Path="src/Modules/Supplier/Adapter/Outbound/ModularMonolith.Modules.Supplier.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Supplier/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Supplier/Adapter/Inbound/Rest/ModularMonolith.Modules.Supplier.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Supplier/QueryApplication/">
+    <Project Path="src/Modules/Supplier/QueryApplication/ModularMonolith.Modules.Supplier.QueryApplication.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Supplier/Installer/">
+    <Project Path="src/Modules/Supplier/Installer/ModularMonolith.Modules.Supplier.Installer.csproj" />
+  </Folder>
+
+  <Folder Name="/src/Modules/Brand/" />
+  <Folder Name="/src/Modules/Brand/Application/">
+    <Project Path="src/Modules/Brand/Application/ModularMonolith.Modules.Brand.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Brand/Adapter/Outbound/">
+    <Project Path="src/Modules/Brand/Adapter/Outbound/ModularMonolith.Modules.Brand.Adapter.Outbound.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Brand/Adapter/Inbound/Rest/">
+    <Project Path="src/Modules/Brand/Adapter/Inbound/Rest/ModularMonolith.Modules.Brand.Adapter.Inbound.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Brand/QueryApplication/">
+    <Project Path="src/Modules/Brand/QueryApplication/ModularMonolith.Modules.Brand.QueryApplication.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Brand/Installer/">
+    <Project Path="src/Modules/Brand/Installer/ModularMonolith.Modules.Brand.Installer.csproj" />
+  </Folder>
   <Folder Name="/src/Host/" />
   <Folder Name="/src/Host/ModularMonolith.Host/">
     <Project Path="src/Host/ModularMonolith.Host/ModularMonolith.Host.csproj" />

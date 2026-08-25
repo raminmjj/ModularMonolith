@@ -18,6 +18,8 @@
     <ProjectReference Include="..\..\src\Modules\Orders\Installer\ModularMonolith.Modules.Orders.Installer.csproj" />
     <ProjectReference Include="..\..\src\Modules\Customer\Installer\ModularMonolith.Modules.Customer.Installer.csproj" />
     <ProjectReference Include="..\..\src\Modules\Payment\Installer\ModularMonolith.Modules.Payment.Installer.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Supplier\Installer\ModularMonolith.Modules.Supplier.Installer.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Brand\Installer\ModularMonolith.Modules.Brand.Installer.csproj" />
     <ProjectReference Include="..\..\src\Modules\Admin\Installer\ModularMonolith.Modules.Admin.Installer.csproj" />
     <ProjectReference Include="..\..\src\BuildingBlocks\Framework\ModularMonolith.Framework.csproj" />
   </ItemGroup>

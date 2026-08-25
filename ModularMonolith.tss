@@ -56,7 +56,40 @@
       <string>E:\Temp\modular-monolith-v3\src\Modules\Customer\Adapter\Outbound\DependencyInjection.cs</string>
     </ArrayOfString>
     <ArrayOfString>
-      <string>E:\Temp\modular-monolith-v3\src\Modules\Catalog\Application\Ports\Inbound\IProductService.cs</string>
+      <string>E:\Temp\modular-monolith-v3\src\Modules\Admin\Adapter\Outbound\ReportingDataProviders.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\BuildingBlocks\DDD\Common\AggregateRoot.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\Modules\Customer\Application\Domain\Customers\Customer.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\Modules\Admin\Adapter\Inbound\GraphQL\AdminMutations.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\Modules\Admin\Adapter\Inbound\GraphQL\AdminQueries.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\Modules\Admin\Application\Ports\Outbound\IAdminGateways.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\Modules\Catalog\Application\Ports\Inbound\ICatalogAdminService.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\Modules\Catalog\Application\Service\CatalogAdminService.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\Modules\Customer\Application\Ports\Inbound\ICustomerAdminService.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\Modules\Payment\Application\Ports\Inbound\IPaymentAdminService.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\src\Modules\Payment\Application\Service\PaymentAdminService.cs</string>
+    </ArrayOfString>
+    <ArrayOfString>
+      <string>E:\Temp\modular-monolith-v3\docs\adr\0009-supplier-brand-m2m.md</string>
     </ArrayOfString>
   </ArrayOfArrayOfString>
 </ArrayOfArrayOfArrayOfString>

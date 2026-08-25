@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ModularMonolith.Modules.Brand.Adapter.Inbound.Rest</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Scrutor" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Application\ModularMonolith.Modules.Brand.Application.csproj" />
+    <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Framework\ModularMonolith.Framework.csproj" />
+    <ProjectReference Include="..\..\..\..\..\BuildingBlocks\Contracts\ModularMonolith.Contracts.csproj" />
+  </ItemGroup>
+</Project>
