@@ -91,7 +91,7 @@ docker compose up --build
 | `/api/v1/payments` | Payment initiation (saved-card / new-token), capture/fail |
 | `/api/v1/suppliers` | Suppliers: create, get (admin ops via GraphQL) |
 | `/api/v1/brands` | Brands: create, get (admin ops via GraphQL) |
-| `/api/v1/admin/reports/graphql` | **Admin GraphQL** — full panel (see below); Admin policy ×2 + rate limit + max-depth 10 |
+| `/api/v1/admin/graphql` | **Admin GraphQL** — full panel (see below); Admin policy ×2 + rate limit + max-depth 10 |
 
 ### Admin GraphQL example
 

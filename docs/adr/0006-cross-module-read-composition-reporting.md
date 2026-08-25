@@ -61,7 +61,7 @@ mirror of the write-side ACL gateway pattern (ADR-0002/0005).
    (`GetFailedPaymentsAsync`, `GetByIdsAsync`) — single-statement SQL each.
 3. All grouping/filtering/paging/caching lives in Reporting.Application.
 4. GraphQL = HotChocolate 16 (`HotChocolate.AspNetCore`, `HotChocolate.AspNetCore.Authorization`),
-   endpoint `/api/v1/admin/reports/graphql`, named rate-limit policy `reports`.
+   endpoint `/api/v1/admin/graphql` (originally `.../admin/reports/graphql` - renamed with the module, see ADR-0007), named rate-limit policy `admin`.
 
 ## Consequences
 - ✅ Cross-module reads finally have a home with the same enforcement rigor as writes.

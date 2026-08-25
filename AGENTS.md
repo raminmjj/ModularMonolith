@@ -110,7 +110,7 @@ docker compose up --build
 | `/api/v1/orders` | Create order (with stock reservation), status changes |
 | `/api/v1/customers` | Customer profiles, addresses, saved payment methods (tokens only) |
 | `/api/v1/payments` | Payment initiation (saved-card / new-token), capture/fail |
-| `/api/v1/admin/reports/graphql` | Admin GraphQL (HotChocolate): full admin panel — Catalog/Customer/Order/Payment queries+mutations, analytics, failed-payments report. Admin policy ×2 + `reports` rate-limit + max-depth 10 (ADR-0007) |
+| `/api/v1/admin/graphql` | Admin GraphQL (HotChocolate): full admin panel — Catalog/Customer/Order/Payment queries+mutations, analytics, failed-payments report. Admin policy ×2 + `admin` rate-limit + max-depth 10 (ADR-0007) |
 
 ### GraphQL example
 

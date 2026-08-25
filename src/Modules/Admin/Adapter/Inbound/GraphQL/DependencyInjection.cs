@@ -35,15 +35,15 @@ public static class DependencyInjection
     /// Maps the admin GraphQL endpoint. Defense in depth: the ASP.NET authorization
     /// policy gates the ENDPOINT (blocks introspection for non-admins), and
     /// [Authorize(Policy = "Admin")] additionally gates the FIELD.
-    /// Rate limiting via the named "reports" policy (configured in Host).
+    /// Rate limiting via the named "admin" policy (configured in Host).
     /// </summary>
     public static IApplicationBuilder MapAdminEndpoints(this WebApplication app)
     {
-        app.MapGraphQL("/api/v1/admin/reports/graphql")
+        app.MapGraphQL("/api/v1/admin/graphql")
             .RequireAuthorization("Admin")
-            .RequireRateLimiting("reports");
+            .RequireRateLimiting("admin");
 
-        app.MapGraphQLSchema("/api/v1/admin/reports/graphql/schema.gql");
+        app.MapGraphQLSchema("/api/v1/admin/graphql/schema.gql");
 
         return app;
     }

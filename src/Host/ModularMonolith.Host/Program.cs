@@ -128,8 +128,8 @@ builder.Services.AddRateLimiter(opts =>
             }));
     opts.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-    // Named policy for expensive admin reports (GraphQL).
-    opts.AddPolicy("reports", context =>
+    // Named rate-limit policy for the admin GraphQL panel (expensive queries).
+    opts.AddPolicy("admin", context =>
         System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
             partitionKey: context.User.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "anon",
             factory: _ => new System.Threading.RateLimiting.FixedWindowRateLimiterOptions

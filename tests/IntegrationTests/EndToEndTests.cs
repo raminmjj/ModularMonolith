@@ -230,7 +230,7 @@ public class EndToEndTests : IClassFixture<WebApplicationFactory<Program>>
         var payment = await payResp.Content.ReadFromJsonAsync<PaymentCreatedResponse>();
 
         // 2. Non-admin must be FORBIDDEN before any report logic runs (endpoint-level policy).
-        var forbiddenResp = await _client.PostAsJsonAsync("/api/v1/admin/reports/graphql",
+        var forbiddenResp = await _client.PostAsJsonAsync("/api/v1/admin/graphql",
             new { query = "query { customersWithFailedPayments(filter: {}) { totalCount } }" });
         forbiddenResp.StatusCode.Should().Be(System.Net.HttpStatusCode.Forbidden);
 
@@ -253,7 +253,7 @@ public class EndToEndTests : IClassFixture<WebApplicationFactory<Program>>
               }
             }
             """;
-        var graphQLResp = await _client.PostAsJsonAsync("/api/v1/admin/reports/graphql",
+        var graphQLResp = await _client.PostAsJsonAsync("/api/v1/admin/graphql",
             new { query, variables = new { f = new { minAmount = 50m, customerStatus = (string?)null, page = 1, pageSize = 20 } } });
         if (!graphQLResp.IsSuccessStatusCode)
         {
@@ -364,7 +364,7 @@ public class EndToEndTests : IClassFixture<WebApplicationFactory<Program>>
               }
             }
             """;
-        var graphQLResp = await _client.PostAsJsonAsync("/api/v1/admin/reports/graphql",
+        var graphQLResp = await _client.PostAsJsonAsync("/api/v1/admin/graphql",
             new { query, variables = new { f = new { minAmount = 50m, customerStatus = (string?)null, page = 1, pageSize = 20 } } });
         if (!graphQLResp.IsSuccessStatusCode)
         {
@@ -530,7 +530,7 @@ public class EndToEndTests : IClassFixture<WebApplicationFactory<Program>>
 
     private async Task<string> GraphQlRaw(string query)
     {
-        var resp = await _client.PostAsJsonAsync("/api/v1/admin/reports/graphql", new { query });
+        var resp = await _client.PostAsJsonAsync("/api/v1/admin/graphql", new { query });
         var body = await resp.Content.ReadAsStringAsync();
         if (!resp.IsSuccessStatusCode || body.Contains("\"errors\""))
             throw new Exception($"GRAPHQL FAIL [{(int)resp.StatusCode}]: {body[..Math.Min(600, body.Length)]}");
